@@ -1,0 +1,56 @@
+'use client';
+
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import Header from '@/components/Header';
+import BottomNav from '@/components/BottomNav';
+import Sidebar from '@/components/Sidebar';
+import Footer from '@/components/Footer';
+import { useState } from 'react';
+
+export default function UserLayout({ children }: { children: React.ReactNode }) {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.replace('/login');
+        }
+    }, [user, loading, router]);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-surface">
+                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin-slow shadow-[0_0_20px_var(--color-primary)]" />
+            </div>
+        );
+    }
+
+    if (!user) return null;
+
+    return (
+        <>
+            <div className="min-h-screen bg-transparent flex transition-colors duration-300">
+                {/* Desktop Sidebar */}
+                <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+                <div className="flex-1 flex flex-col md:pl-72 min-w-0">
+                    <Header onMenuClick={() => setSidebarOpen(true)} />
+                    <main className="flex-1 pb-24 px-4 md:px-8 w-full relative z-10">
+                        <div className="max-w-7xl mx-auto relative h-full">
+                            <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+                            <div className="relative pt-6">
+                                {children}
+                                <Footer />
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+
+            <BottomNav />
+        </>
+    );
+}
