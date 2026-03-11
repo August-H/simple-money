@@ -4,16 +4,18 @@ import React from 'react';
 import { X, CheckCircle, Zap, TrendingUp, ShieldCheck } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 
+export interface BundlePackage {
+    title: string;
+    image_url: string;
+    description: string;
+    cost_amount: number;
+    earned_amount: number;
+}
+
 interface BundledPackageModalProps {
     isOpen: boolean;
     onClose: () => void;
-    bundle: {
-        title: string;
-        image_url: string;
-        description: string;
-        cost_amount: number;
-        earned_amount: number;
-    } | null;
+    bundle: BundlePackage | null;
     onSubmit: (bundle: any) => Promise<void>;
 }
 
