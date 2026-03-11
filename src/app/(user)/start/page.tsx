@@ -444,7 +444,7 @@ export default function StartPage() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto pb-12 animate-slide-up relative min-h-screen">
+        <div className="max-w-6xl mx-auto pb-12 relative min-h-screen">
             <div className="absolute top-1/4 -left-20 w-80 h-80 glass-prism rounded-full opacity-20 pointer-events-none blur-xl animate-pulse-glow" />
             <div className="absolute bottom-1/4 -right-20 w-96 h-96 glass-prism rounded-full opacity-20 pointer-events-none blur-2xl animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
 
@@ -718,7 +718,7 @@ export default function StartPage() {
             )}
 
             {showCompletionModal && (
-                <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-surface dark:bg-background/95 dark:backdrop-blur-2xl animate-fade-in text-center md:pl-72">
+                <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-surface dark:bg-background/95 dark:backdrop-blur-2xl animate-fade-in text-center">
                     <div className="glass-card max-w-sm w-full p-10 animate-scale-in border-success/30 rounded-[40px] relative">
                         <button
                             onClick={handleConfirmSettlement}
@@ -753,7 +753,7 @@ export default function StartPage() {
                 </div>
             )}
 
-            <div className="fixed top-[62%] inset-x-0 z-[1000] flex justify-center pointer-events-none md:pl-80 px-4">
+            <div className="fixed top-[62%] inset-x-0 z-[1000] flex justify-center pointer-events-none px-4">
                 <div className="w-full max-w-sm flex flex-col gap-3">
                     {/* Bundle success toast */}
                     {showBundleSuccessToast && (

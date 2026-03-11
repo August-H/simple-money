@@ -1,61 +1,41 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X, CheckCircle, ShieldCheck, Zap, ArrowRight } from 'lucide-react';
-import type { TaskItem } from '@/lib/types';
-import { useTheme } from '@/context/ThemeContext';
+import React from 'react';
+import { X, CheckCircle, Package } from 'lucide-react';
+import { useCurrency } from '@/context/CurrencyContext';
 
 interface ItemDetailModalProps {
-    item: TaskItem | null;
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (item: TaskItem, costAmount: number) => void;
-    balance: number;
-    commissionRate: number;
-    format: (amount: number) => string;
-    isSubmitting?: boolean;
+    item: {
+        title: string;
+        image_url: string;
+        description: string;
+        category: string;
+    } | null;
+    onSubmit: (item: any, displayValue: number) => Promise<void>;
+    progressData?: {
+        current: number;
+        total: number;
+    };
+    walletBalance?: number;
 }
 
 export default function ItemDetailModal({
-    item,
     isOpen,
     onClose,
+    item,
     onSubmit,
-    balance,
-    commissionRate,
-    format,
-    isSubmitting = false
+    walletBalance
 }: ItemDetailModalProps) {
-    const { theme } = useTheme();
-    const [success, setSuccess] = useState(false);
-    const [displayProductValue, setDisplayProductValue] = useState(0);
-
-    // Reset success state and randomize product value when modal opens
-    useEffect(() => {
-        if (isOpen) {
-            setSuccess(false);
-            if (balance > 0) {
-                // Match the database logic: 40% to 85%
-                const randomFactor = 0.40 + Math.random() * 0.45;
-                let value = balance * randomFactor;
-
-                // Safety logic matching SQL:
-                if (value < 50 && balance >= 65) {
-                    value = balance * 0.8;
-                }
-                setDisplayProductValue(Number(value.toFixed(2)));
-            } else {
-                setDisplayProductValue(0);
-            }
-        }
-    }, [isOpen, balance]);
+    const { format } = useCurrency();
 
     if (!isOpen || !item) return null;
 
-    const projectedProfit = displayProductValue * commissionRate;
+    // Fixed product value logic to match database expectations
+    const displayProductValue = walletBalance !== undefined ? Math.floor(walletBalance * 0.8) : 0;
 
-    const handleLocalSubmit = async () => {
-        if (isSubmitting || !item) return;
+    const handleSubmit = async () => {
         try {
             await onSubmit(item, displayProductValue);
         } catch (err) {
@@ -64,110 +44,51 @@ export default function ItemDetailModal({
     };
 
     return (
-        <div className="fixed inset-0 z-[1000] flex animate-fade-in items-center justify-center md:pl-72 p-4 text-center">
-            {/* Backdrop with heavy blur */}
-            <div className="absolute inset-0 bg-white/80 dark:bg-black/90 backdrop-blur-sm dark:backdrop-blur-xl" />
-
-            {/* Modal Container */}
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div
-                className="relative w-full max-w-[360px] max-h-[90vh] glass-card-strong overflow-y-auto border border-black/5 dark:border-white/10 shadow-[0_30px_70px_rgba(0,0,0,0.6)] rounded-[32px] z-[1001] flex flex-col"
+                className="bg-surface dark:bg-surface-light w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl animate-fade-in relative flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Background Decoration */}
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/20 blur-[40px] rounded-full pointer-events-none opacity-50 dark:opacity-100" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/20 blur-[40px] rounded-full pointer-events-none opacity-50 dark:opacity-100" />
+                <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 p-2 text-text-secondary hover:text-text-primary z-10"
+                >
+                    <X size={20} />
+                </button>
 
-                <div className="p-8 flex-1 flex flex-col">
-                    {/* Header */}
-                    <div className="flex items-center gap-2 mb-6">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                        <span className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-60">Processing task</span>
+                <div className="p-6 md:p-8 flex flex-col items-center">
+                    <div className="w-full aspect-square rounded-2xl overflow-hidden mb-6 bg-white/5 border border-black/5 dark:border-white/5 shadow-inner">
+                        <img
+                            src={item.image_url}
+                            alt={item.title}
+                            className="w-full h-full object-contain p-4"
+                        />
                     </div>
 
-                    {/* Product Row - COMPACT HORIZONTAL */}
-                    <div className="flex items-center gap-5 mb-8">
-                        <div className="w-20 h-20 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-1.5 shrink-0 relative group overflow-hidden">
-                            <img
-                                src={item.image_url}
-                                alt={item.title}
-                                className="w-full h-full object-cover rounded-xl transition-transform group-hover:scale-110"
-                                onError={e => {
-                                    (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${item.id}/200/200`;
-                                }}
-                            />
-                            <div className="absolute -bottom-1 -right-1 bg-success p-1 rounded-lg border-2 border-surface dark:border-[#1a1a1a] shadow-lg">
-                                <CheckCircle size={12} className="text-white" />
+                    <div className="flex flex-col items-center text-center w-full">
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2 bg-primary/10 px-3 py-1 rounded-full">
+                            Product optimization
+                        </span>
+                        <h3 className="text-xl font-black text-text-primary mb-2 line-clamp-1">{item.title}</h3>
+                        <p className="text-xs text-text-secondary mb-6 line-clamp-2 px-2">{item.description}</p>
+
+                        <div className="w-full space-y-3 mb-8">
+                            <div className="flex justify-between items-center p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10">
+                                <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">Market Value</span>
+                                <span className="text-lg font-black text-text-primary">{format(displayProductValue)}</span>
+                            </div>
+                            <div className="flex justify-between items-center p-4 rounded-2xl bg-success/10 border border-success/20">
+                                <span className="text-[10px] font-black text-success uppercase tracking-widest">Est. Profit</span>
+                                <span className="text-lg font-black text-success">+{format(displayProductValue * 0.005)}</span>
                             </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <h2 className="text-sm font-black text-text-primary dark:text-white uppercase tracking-tight line-clamp-2 leading-tight">
-                                {item.title}
-                            </h2>
-                            <div className="mt-2 flex items-center gap-1.5">
-                                <span className="text-[8px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded border border-primary/20">Active</span>
-                                <span className="text-[8px] font-black text-success uppercase tracking-widest bg-success/10 px-2 py-0.5 rounded border border-success/20">Verified</span>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Financial Summary - THEME AWARE COMPACT ROW */}
-                    <div className={`p-5 mb-8 rounded-2xl border backdrop-blur-md space-y-5 relative overflow-hidden group transition-all duration-500 ${theme === 'dark'
-                        ? 'border-white/10 bg-white/[0.03] shadow-[0_4px_20px_rgba(0,0,0,0.5)]'
-                        : 'border-black/5 bg-black/[0.03] shadow-[0_4px_20px_rgba(0,0,0,0.05)]'
-                        }`}>
-                        <div className="absolute -right-4 -top-4 w-16 h-16 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all" />
-
-                        <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.15em] px-1">
-                            <span className="w-1/3 text-left text-text-secondary dark:text-white/40">Product value</span>
-                            <span className="w-1/3 text-center text-text-secondary dark:text-white/40">Commission</span>
-                            <span className="w-1/3 text-right text-text-secondary dark:text-white/40">Profit</span>
-                        </div>
-                        <div className="flex justify-between items-end px-1">
-                            <div className="w-1/3 flex flex-col items-start gap-1">
-                                <span className="text-sm font-black truncate transition-colors text-accent">{format(displayProductValue)}</span>
-                                <div className="flex items-center gap-1 opacity-60 dark:opacity-40">
-                                    <img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/color/usdt.png" className="w-2.5 h-2.5" alt="" />
-                                    <span className={`text-[7px] font-bold uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-text-primary'}`}>USDT</span>
-                                </div>
-                            </div>
-                            <div className="w-1/3 flex flex-col items-center">
-                                <span className="text-sm font-black text-primary">{(commissionRate * 100).toFixed(2)}%</span>
-                                <span className="text-[7px] font-bold text-primary dark:text-primary-light/40 uppercase tracking-tighter mt-1">Rebate rate</span>
-                            </div>
-                            <div className="w-1/3 flex flex-col items-end gap-1 text-success">
-                                <div className="flex items-center gap-1">
-                                    <Zap size={14} className="fill-success opacity-80" />
-                                    <span className="text-sm font-black">{format(projectedProfit)}</span>
-                                </div>
-                                <div className="flex items-center gap-1 opacity-60 dark:opacity-40">
-                                    <img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/color/usdt.png" className="w-2.5 h-2.5" alt="" />
-                                    <span className={`text-[7px] font-bold uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-text-primary'}`}>USDT</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Action Button */}
-                    <button
-                        onClick={handleLocalSubmit}
-                        disabled={isSubmitting}
-                        className={`w-full bg-primary text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary/20 hover:bg-primary-light hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group cursor-pointer ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
-                    >
-                        {isSubmitting ? (
-                            <>
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                Submitting...
-                            </>
-                        ) : (
-                            <>
-                                Submit task <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
-                            </>
-                        )}
-                    </button>
-
-                    <div className="mt-6 flex items-center justify-center gap-2 opacity-60 dark:opacity-30 pb-2">
-                        <ShieldCheck size={12} className="text-primary" />
-                        <span className="text-[8px] font-black text-text-secondary uppercase tracking-[0.3em]">Secured channel</span>
+                        <button
+                            onClick={handleSubmit}
+                            className="w-full py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-xl shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                        >
+                            Submit Order <CheckCircle size={18} />
+                        </button>
                     </div>
                 </div>
             </div>
