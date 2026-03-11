@@ -8,10 +8,11 @@ import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import type { UserTask, TaskItem } from '@/lib/types';
-import { Clock, CheckCircle, XCircle, Search, Filter, ChevronRight, Zap } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, Search, Filter, ChevronRight, Zap, Headset } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function RecordPage() {
+    const router = useRouter();
     const { profile, refreshProfile } = useAuth();
     const { t, language } = useLanguage();
     const { format } = useCurrency();
@@ -220,15 +221,25 @@ export default function RecordPage() {
                                 <div className="text-right flex flex-col items-end gap-2">
                                     {statusBadge(task.status)}
                                     {task.status === 'pending' && (
-                                        <button
-                                            onClick={() => handleSubmitPending(task.task_item_id)}
-                                            disabled={isSubmitting}
-                                            className={`px-3 py-1.5 rounded-lg bg-primary text-white text-[9px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 transition-all
-                                                ${isSubmitting && submittingTaskId === task.task_item_id ? 'opacity-50 cursor-wait' : 'hover:scale-105 active:scale-95 cursor-pointer'}
-                                            `}
-                                        >
-                                            {isSubmitting && submittingTaskId === task.task_item_id ? t('submitting') : t('submit_order')}
-                                        </button>
+                                        profile && profile.wallet_balance < 0 ? (
+                                            <button
+                                                onClick={() => router.push('/support')}
+                                                className="px-3 py-1.5 rounded-lg bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest shadow-lg shadow-amber-500/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
+                                            >
+                                                <Headset size={10} />
+                                                Contact Support
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleSubmitPending(task.task_item_id)}
+                                                disabled={isSubmitting}
+                                                className={`px-3 py-1.5 rounded-lg bg-primary text-white text-[9px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 transition-all
+                                                    ${isSubmitting && submittingTaskId === task.task_item_id ? 'opacity-50 cursor-wait' : 'hover:scale-105 active:scale-95 cursor-pointer'}
+                                                `}
+                                            >
+                                                {isSubmitting && submittingTaskId === task.task_item_id ? t('submitting') : t('submit_order')}
+                                            </button>
+                                        )
                                     )}
                                 </div>
                             </div>

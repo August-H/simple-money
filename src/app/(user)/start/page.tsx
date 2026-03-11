@@ -166,7 +166,7 @@ export default function StartPage() {
     // Proactive Messaging Logic
     useEffect(() => {
         if (hasPendingTask) {
-            setMatchingStatus("You have a pending order to submit");
+            setMatchingStatus("You have a pending order");
         } else if (isLocked) {
             if (currentSet >= setsPerDay) {
                 setMatchingStatus(t('daily_limit_reached'));
@@ -204,14 +204,18 @@ export default function StartPage() {
         }
 
         if (hasPendingTask) {
-            setMatchingStatus("You have a pending order to submit");
-            setLockMessage("You have a pending order to submit. Please check your activity records.");
-            setTimeout(() => setLockMessage(null), 3000);
+            setMatchingStatus("You have a pending order");
+            setLockMessage("you have a pending order");
+            setTimeout(() => {
+                setLockMessage(null);
+                router.push('/record');
+            }, 1500);
             return;
         }
 
         if (profile && profile.wallet_balance < 0) {
             setShowPendingWarning(true);
+            router.push('/record');
             return;
         }
 
@@ -605,10 +609,10 @@ export default function StartPage() {
                                             </div>
 
                                             <div className="relative z-20 flex flex-col items-center text-center">
-                                                <h3 className="text-[12px] md:text-lg font-black text-white uppercase tracking-wider leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-                                                    {isLocked ? t('status') : t('start')}
+                                                <h3 className="text-[11px] md:text-lg font-black text-white uppercase tracking-wider leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+                                                    {hasPendingTask ? "Submit Order" : (isLocked ? t('status') : t('start'))}
                                                 </h3>
-                                                {!isSpinning && !isLocked && <Pointer size={14} className="text-white animate-bounce mt-1 drop-shadow-md" />}
+                                                {!isSpinning && !isLocked && !hasPendingTask && <Pointer size={14} className="text-white animate-bounce mt-1 drop-shadow-md" />}
                                             </div>
                                         </button>
                                     </div>
