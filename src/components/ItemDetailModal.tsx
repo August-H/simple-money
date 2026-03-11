@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React from 'react';
 import { X, CheckCircle, Loader2 } from 'lucide-react';
 
 interface ItemDetailModalProps {
@@ -30,13 +29,7 @@ export default function ItemDetailModal({
     format,
     isSubmitting
 }: ItemDetailModalProps) {
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    if (!isOpen || !item || !mounted) return null;
+    if (!isOpen || !item) return null;
 
     // Use the logic expected by the backend
     const displayProductValue = Math.floor(balance * 0.8);
@@ -50,9 +43,9 @@ export default function ItemDetailModal({
         }
     };
 
-    return createPortal(
+    return (
         <div
-            className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300 md:pl-72"
+            className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300"
             onClick={onClose}
         >
             <div
@@ -128,7 +121,6 @@ export default function ItemDetailModal({
                     </p>
                 </div>
             </div>
-        </div>,
-        document.body
+        </div>
     );
 }

@@ -677,7 +677,7 @@ export default function StartPage() {
             {/* Bundle toast is handled in the main toast container below */}
 
             {showMinBalanceModal && (
-                <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-surface dark:bg-background/95 dark:backdrop-blur-2xl animate-fade-in text-center md:pl-72">
+                <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-surface dark:bg-background/95 dark:backdrop-blur-2xl animate-fade-in text-center">
                     <div className="glass-card max-w-sm w-full p-10 animate-scale-in border-danger/30 rounded-[40px] relative">
                         <button
                             onClick={() => setShowMinBalanceModal(false)}
@@ -713,7 +713,7 @@ export default function StartPage() {
             )}
 
             {showCompletionModal && (
-                <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-surface dark:bg-background/95 dark:backdrop-blur-2xl animate-fade-in text-center md:pl-72">
+                <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-surface dark:bg-background/95 dark:backdrop-blur-2xl animate-fade-in text-center">
                     <div className="glass-card max-w-sm w-full p-10 animate-scale-in border-success/30 rounded-[40px] relative">
                         <button
                             onClick={handleConfirmSettlement}
@@ -748,7 +748,7 @@ export default function StartPage() {
                 </div>
             )}
 
-            <div className="fixed top-[62%] inset-x-0 z-[1000] flex justify-center pointer-events-none px-4 md:pl-72">
+            <div className="fixed top-[62%] inset-x-0 z-[1000] flex justify-center pointer-events-none px-4">
                 <div className="w-full max-w-sm flex flex-col gap-3">
                     {/* Bundle success toast */}
                     {showBundleSuccessToast && (
@@ -787,7 +787,7 @@ export default function StartPage() {
                 </div>
             </div>
             {showPendingWarning && (
-                <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-surface dark:bg-background/98 dark:backdrop-blur-2xl animate-fade-in md:pl-72">
+                <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-surface dark:bg-background/98 dark:backdrop-blur-2xl animate-fade-in">
                     <div className="glass-card max-w-sm w-full p-8 text-center animate-shake border-danger/40">
                         <div className="w-20 h-20 rounded-3xl bg-danger/20 flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_var(--color-danger)]">
                             <AlertTriangle size={40} className="text-danger" />
