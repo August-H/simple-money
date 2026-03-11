@@ -679,20 +679,7 @@ export default function StartPage() {
             <BundledPackageModal isOpen={bundleModal} bundle={activeBundle} onAccept={handleBundleAccept} />
 
 
-            {/* Huge Profit Toast (Moved up to match normal profit toast) */}
-            {showBundleSuccessToast && (
-                <div className="fixed top-24 inset-x-0 z-[1000] flex justify-center pointer-events-none md:pl-80 px-4">
-                    <div className="w-full max-w-sm bg-gradient-to-br from-primary via-primary-light to-accent text-white px-8 py-6 rounded-[28px] shadow-[0_20px_50px_rgba(157,80,187,0.5)] flex items-center gap-5 border border-white/30 animate-slide-up pointer-events-auto">
-                        <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-                            <Zap size={28} className="text-white animate-pulse" />
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80">Premium Order Success</span>
-                            <p className="text-[11px] font-bold text-white leading-relaxed">Optimization Cycle complete! Profit added to your secure wallet balance.</p>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Bundle toast is handled in the main toast container below */}
 
             {showMinBalanceModal && (
                 <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-surface dark:bg-background/95 dark:backdrop-blur-2xl animate-fade-in text-center md:pl-72">
@@ -766,8 +753,20 @@ export default function StartPage() {
                 </div>
             )}
 
-            <div className="fixed top-32 inset-x-0 z-[1000] flex justify-center pointer-events-none md:pl-80 px-4">
+            <div className="fixed top-[58%] inset-x-0 z-[1000] flex justify-center pointer-events-none md:pl-80 px-4">
                 <div className="w-full max-w-sm flex flex-col gap-3">
+                    {/* Bundle success toast */}
+                    {showBundleSuccessToast && (
+                        <div className="bg-gradient-to-br from-primary via-primary-light to-accent text-white px-8 py-6 rounded-[28px] shadow-[0_20px_50px_rgba(157,80,187,0.5)] flex items-center gap-5 border border-white/30 animate-slide-up pointer-events-auto">
+                            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+                                <Zap size={28} className="text-white animate-pulse" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80">Premium Order Success</span>
+                                <p className="text-[11px] font-bold text-white leading-relaxed">Optimization Cycle complete! Profit added to your secure wallet balance.</p>
+                            </div>
+                        </div>
+                    )}
                     {profitAdded !== null && (
                         <div className="bg-success text-white px-8 py-5 rounded-[28px] shadow-[0_20px_50px_rgba(34,197,94,0.4)] flex items-center justify-center gap-4 animate-slide-up border border-white/20">
                             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
