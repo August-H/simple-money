@@ -347,12 +347,11 @@ export default function StartPage() {
         }
 
         setIsSubmitting(true);
-        console.log("Submitting optimization for system ID:", item.id, "Value:", costAmount);
+        console.log("Submitting optimization for system ID:", item.id);
 
         try {
             const { data, error } = await supabase.rpc('complete_user_task', {
-                p_task_item_id: item.id,
-                p_cost_amount: costAmount
+                p_task_item_id: item.id
             });
 
             if (error) {
