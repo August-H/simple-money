@@ -7,6 +7,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { CurrencyProvider } from '@/context/CurrencyContext';
 import { SettingsProvider } from '@/context/SettingsContext';
 import Script from 'next/script';
+import ScrollToTop from '@/components/ScrollToTop';
 
 export const metadata: Metadata = {
     title: 'Simple Money - Making Everything Simple',
@@ -32,6 +33,7 @@ export default function RootLayout({
                             <LanguageProvider>
                                 <CurrencyProvider>
                                     <NotificationProvider>
+                                        <ScrollToTop />
                                         {children}
                                     </NotificationProvider>
                                 </CurrencyProvider>
