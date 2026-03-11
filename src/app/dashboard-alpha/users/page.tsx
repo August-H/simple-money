@@ -227,8 +227,8 @@ export default function AdminUsersPage() {
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[10px]">User info</th>
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[10px]">Role</th>
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[10px]">Balance</th>
-                                <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[10px]">Profit</th>
-                                <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[10px]">Bonus</th>
+                                <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[10px]">Task Profit</th>
+                                <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[10px]">Team Bonus</th>
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[10px]">VIP Level</th>
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[10px]">Progress</th>
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[10px]">Affiliate</th>

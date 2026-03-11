@@ -64,7 +64,7 @@ export default function ItemDetailModal({
     };
 
     return (
-        <div className="fixed inset-0 z-[1000] flex animate-fade-in items-center justify-center p-4">
+        <div className="fixed inset-0 z-[1000] flex animate-fade-in items-center justify-center">
             {/* Backdrop with heavy blur */}
             <div className="absolute inset-0 bg-white/80 dark:bg-black/90 backdrop-blur-sm dark:backdrop-blur-xl" />
 
