@@ -1,6 +1,8 @@
 'use client';
 
-import { Package, Zap, ArrowRight, Sparkles, Star, Smartphone, ShieldCheck } from 'lucide-react';
+import { useEffect } from 'react';
+import { Package, Zap, ArrowRight, Sparkles, Star, ShieldCheck, Gift } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 export interface BundlePackage {
     id: string;
@@ -24,6 +26,32 @@ interface BundledPackageModalProps {
 }
 
 export default function BundledPackageModal({ isOpen, bundle, onAccept }: BundledPackageModalProps) {
+
+    // Celebration Effect
+    useEffect(() => {
+        if (isOpen && bundle) {
+            const duration = 3 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+            const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+            const interval: any = setInterval(function () {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            }, 250);
+
+            return () => clearInterval(interval);
+        }
+    }, [isOpen, bundle]);
+
     if (!isOpen || !bundle) return null;
 
     return (
@@ -33,37 +61,45 @@ export default function BundledPackageModal({ isOpen, bundle, onAccept }: Bundle
 
             {/* Modal Container */}
             <div
-                className="relative w-full max-w-[360px] h-auto max-h-[95vh] glass-card-glow overflow-y-auto animate-scale-in border border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.2)] rounded-[32px] z-10 flex flex-col"
+                className="relative w-full max-w-[360px] h-auto max-h-[95vh] glass-card-glow overflow-y-auto animate-scale-in border border-amber-500/30 shadow-[0_0_80px_rgba(245,158,11,0.4)] rounded-[32px] z-10 flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Premium Background Effects */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 blur-[60px] rounded-full pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-orange-600/20 blur-[40px] rounded-full pointer-events-none" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/30 blur-[60px] rounded-full pointer-events-none animate-pulse" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-orange-600/30 blur-[40px] rounded-full pointer-events-none animate-pulse" />
 
-                <div className="p-8 flex-1 flex flex-col">
+                <div className="p-8 flex-1 flex flex-col relative">
+                    {/* Floating Celebration Icons */}
+                    <div className="absolute -top-4 -left-4 animate-bounce delay-75">
+                        <Star size={24} className="text-amber-400 fill-amber-400 opacity-50" />
+                    </div>
+                    <div className="absolute top-20 -right-2 animate-bounce delay-300">
+                        <Sparkles size={20} className="text-amber-300 opacity-40" />
+                    </div>
+
                     {/* Bundle Header */}
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping shadow-[0_0_10px_var(--color-amber-500)]" />
-                            <span className="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em]">Special Acceleration</span>
+                            <Gift size={16} className="text-amber-500 animate-bounce" />
+                            <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em]">Surprise Unlocked!</span>
                         </div>
-                        <div className="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center gap-1.5">
-                            <Sparkles size={10} className="text-amber-500" />
-                            <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">VIP</span>
+                        <div className="px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+                            <Sparkles size={10} className="text-amber-500 animate-pulse" />
+                            <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">LUCKY YOU</span>
                         </div>
                     </div>
 
-                    {/* Product Row - COMPACT HORIZONTAL (Matching ItemDetailModal) */}
+                    {/* Product Row - COMPACT HORIZONTAL */}
                     <div className="flex items-center gap-5 mb-8 text-left">
                         {bundle.taskItem?.image_url ? (
-                            <div className="w-20 h-20 rounded-2xl bg-white/5 border border-amber-500/20 p-1.5 shrink-0 relative group overflow-hidden">
+                            <div className="w-20 h-20 rounded-2xl bg-white/5 border border-amber-500/40 p-1.5 shrink-0 relative group overflow-hidden shadow-2xl">
                                 <img
                                     src={bundle.taskItem.image_url}
                                     alt={bundle.taskItem.title}
                                     className="w-full h-full object-cover rounded-xl transition-transform group-hover:scale-110"
                                 />
-                                <div className="absolute -top-1 -right-1 bg-gradient-to-br from-amber-400 to-orange-600 p-1 rounded-lg shadow-lg z-20">
-                                    <Star size={10} className="text-white fill-white" />
+                                <div className="absolute -top-1 -right-1 bg-gradient-to-br from-amber-300 to-orange-600 p-1.5 rounded-lg shadow-lg z-20 animate-pulse">
+                                    <Star size={12} className="text-white fill-white" />
                                 </div>
                             </div>
                         ) : (
@@ -72,23 +108,23 @@ export default function BundledPackageModal({ isOpen, bundle, onAccept }: Bundle
                             </div>
                         )}
                         <div className="flex-1 min-w-0">
-                            <h2 className="text-sm font-black text-white uppercase tracking-tight line-clamp-2 leading-tight">
-                                {bundle.taskItem?.title || bundle.name}
+                            <h2 className="text-lg font-black text-white uppercase tracking-tight line-clamp-2 leading-tight drop-shadow-lg">
+                                Wow! Lucky You!
                             </h2>
-                            <p className="text-[9px] text-text-secondary mt-2 leading-tight uppercase font-bold tracking-wider opacity-60">
-                                {bundle.description}
+                            <p className="text-[10px] text-amber-200/80 mt-2 leading-tight uppercase font-bold tracking-wider">
+                                You have gotten a special bundle!
                             </p>
                         </div>
                     </div>
 
                     {/* Financial Summary - COMPACT GLASS CARD */}
-                    <div className="p-5 mb-8 rounded-2xl border border-amber-500/10 bg-amber-500/[0.04] backdrop-blur-md space-y-5 relative overflow-hidden group">
-                        <div className="absolute -right-4 -top-4 w-16 h-16 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-all" />
+                    <div className="p-5 mb-8 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.08] to-orange-600/[0.08] backdrop-blur-md space-y-5 relative overflow-hidden group">
+                        <div className="absolute -right-4 -top-4 w-16 h-16 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all" />
 
                         <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.15em] px-1">
-                            <span className="w-1/3 text-left text-white/40">Asset Logic</span>
+                            <span className="w-1/3 text-left text-white/40">Combo Value</span>
                             <span className="w-1/3 text-center text-white/40">Required</span>
-                            <span className="w-1/3 text-right text-white/40">Bonus Profit</span>
+                            <span className="w-1/3 text-right text-white/40">Super Profit</span>
                         </div>
                         <div className="flex justify-between items-end px-1">
                             <div className="w-1/3 flex flex-col items-start gap-1">
@@ -101,12 +137,12 @@ export default function BundledPackageModal({ isOpen, bundle, onAccept }: Bundle
                                 </div>
                             </div>
                             <div className="w-1/3 flex flex-col items-center">
-                                <span className="text-sm font-black text-amber-500">${bundle.shortageAmount.toFixed(2)}</span>
+                                <span className="text-sm font-black text-amber-500 animate-pulse">${bundle.shortageAmount.toFixed(2)}</span>
                                 <span className="text-[7px] font-bold text-amber-400 uppercase tracking-tighter mt-1">Deposit</span>
                             </div>
                             <div className="w-1/3 flex flex-col items-end gap-1 text-success">
                                 <div className="flex items-center gap-1">
-                                    <Zap size={14} className="fill-success opacity-80" />
+                                    <Sparkles size={14} className="text-success fill-success animate-pulse" />
                                     <span className="text-sm font-black">+${bundle.bonusAmount.toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center gap-1 opacity-40">
@@ -121,21 +157,21 @@ export default function BundledPackageModal({ isOpen, bundle, onAccept }: Bundle
                     <div className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl mb-8">
                         <ShieldCheck size={16} className="text-red-500 shrink-0 mt-0.5" />
                         <p className="text-[9px] font-bold text-red-400 uppercase tracking-widest leading-relaxed text-left">
-                            MANDATORY: These assets are reserved. You must accept this bundle to unlock remaining daily tasks.
+                            MANDATORY: Reserved assets secured. Accept this surprise bundle to unlock remaining tasks.
                         </p>
                     </div>
 
                     {/* Action Button */}
                     <button
                         onClick={() => onAccept(bundle)}
-                        className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-orange-600 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_10px_30px_rgba(245,158,11,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group"
+                        className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-orange-600 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_15px_35px_rgba(245,158,11,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group border border-white/10"
                     >
-                        Accept & Continue <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
+                        Accept Surprise <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
                     </button>
 
-                    <div className="mt-6 flex items-center justify-center gap-2 opacity-30 pb-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                        <span className="text-[8px] font-black text-amber-500 uppercase tracking-[0.3em]">Secured Bundle Active</span>
+                    <div className="mt-6 flex items-center justify-center gap-2 opacity-40 pb-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shadow-[0_0_10px_rgba(245,158,11,1)]" />
+                        <span className="text-[8px] font-black text-amber-500 uppercase tracking-[0.3em]">Exclusive Lucky Bundle Active</span>
                     </div>
                 </div>
             </div>
