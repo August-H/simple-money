@@ -663,18 +663,6 @@ export default function StartPage() {
             />
             <BundledPackageModal isOpen={bundleModal} bundle={activeBundle} onAccept={handleBundleAccept} />
 
-            {/* Profit Toast */}
-            {profitAdded !== null && (
-                <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[1000] animate-bounce-in">
-                    <div className="bg-success text-white px-8 py-4 rounded-3xl shadow-[0_20px_50px_rgba(34,197,94,0.4)] flex items-center gap-4 border border-white/20">
-                        <CheckCircle size={24} />
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-black uppercase tracking-widest opacity-80">Profit Applied</span>
-                            <span className="text-xl font-black">+{format(profitAdded)}</span>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Huge Profit Toast */}
             {showBundleSuccessToast && (
