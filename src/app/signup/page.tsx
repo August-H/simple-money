@@ -19,8 +19,14 @@ const COUNTRY_CODES = [
     { code: '+971', flag: '🇦🇪', name: 'AE' },
 ];
 
+import AnimatePage from '@/components/AnimatePage';
+
 export default function SignupPage() {
-    return <OldSignupPage />;
+    return (
+        <AnimatePage>
+            <OldSignupPage />
+        </AnimatePage>
+    );
 }
 
 function OldSignupPage() {
@@ -186,19 +192,18 @@ function OldSignupPage() {
                     <div className="px-8 mb-6">
                         <div className="flex justify-between mb-2">
                             {[1, 2, 3].map((s) => (
-                                <div 
+                                <div
                                     key={s}
-                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                                        step >= s ? 'bg-primary border-primary text-white' : 'border-white/10 text-text-secondary'
-                                    }`}
+                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${step >= s ? 'bg-primary border-primary text-white' : 'border-white/10 text-text-secondary'
+                                        }`}
                                 >
                                     {s}
                                 </div>
                             ))}
                         </div>
                         <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                            <div 
-                                className="h-full bg-primary transition-all duration-300" 
+                            <div
+                                className="h-full bg-primary transition-all duration-300"
                                 style={{ width: `${((step - 1) / 2) * 100}%` }}
                             />
                         </div>
@@ -227,7 +232,7 @@ function OldSignupPage() {
                             <p className="text-sm text-text-secondary mt-2">
                                 We've sent a magic signup link to <span className="text-primary-light">{formData.email}</span>
                             </p>
-                            <button 
+                            <button
                                 onClick={() => { setMagicSent(false); setStep(1); }}
                                 className="mt-6 text-primary-light hover:underline text-sm font-bold uppercase tracking-widest"
                             >
@@ -235,12 +240,12 @@ function OldSignupPage() {
                             </button>
                         </div>
                     ) : (
-                        <form 
+                        <form
                             onSubmit={(e) => {
                                 e.preventDefault();
                                 if (step === 3) handleSignup(e);
                                 else nextStep();
-                            }} 
+                            }}
                             className="space-y-4 relative z-10"
                         >
                             {/* Step 1: Profile Info */}
@@ -435,7 +440,7 @@ function OldSignupPage() {
                                         <Loader2 className="w-5 h-5 animate-spin" />
                                     ) : (
                                         <>
-                                            {step === 3 ? (signupMode === 'magic' ? 'Send Link' : 'Register') : 'Next'} 
+                                            {step === 3 ? (signupMode === 'magic' ? 'Send Link' : 'Register') : 'Next'}
                                             <ArrowRight size={18} />
                                         </>
                                     )}
@@ -451,7 +456,7 @@ function OldSignupPage() {
                                 Sign In
                             </Link>
                         </p>
-                        <button 
+                        <button
                             type="button"
                             onClick={() => (window as any).Tawk_API?.maximize()}
                             className="text-text-secondary/50 text-[10px] font-bold hover:text-primary-light transition-colors uppercase tracking-[0.2em]"

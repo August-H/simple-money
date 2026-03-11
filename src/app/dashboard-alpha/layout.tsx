@@ -22,6 +22,7 @@ import {
     Package,
     Bell,
 } from 'lucide-react';
+import AnimatePage from '@/components/AnimatePage';
 
 const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard-alpha' },
@@ -49,7 +50,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             .select('id', { count: 'exact', head: true })
             .eq('type', 'deposit')
             .eq('status', 'pending');
-        
+
         const { data: withdrawals } = await supabase
             .from('transactions')
             .select('id', { count: 'exact', head: true })
@@ -67,10 +68,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         const channel = supabase
             .channel('admin-sidebar-status')
-            .on('postgres_changes', { 
-                event: '*', 
-                schema: 'public', 
-                table: 'transactions' 
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'transactions'
             }, () => {
                 fetchPendingCounts();
             })
@@ -147,7 +148,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-primary rounded-r-full shadow-[0_0_10px_rgba(var(--primary),0.5)]"></div>}
                                 <Icon size={20} className={isActive ? 'text-primary-light' : 'opacity-70 group-hover:scale-110 transition-transform'} />
                                 <span className="flex-1">{label}</span>
-                                
+
                                 {label === 'Deposits' && pendingCounts.deposits > 0 && (
                                     <span className="bg-primary text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-[0_0_10px_rgba(var(--primary),0.5)]">
                                         {pendingCounts.deposits}
@@ -200,7 +201,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                 <main className="p-6 md:p-8 flex-1 overflow-auto">
                     <div className="max-w-[1600px] mx-auto">
-                        {children}
+                        <AnimatePage key={pathname}>
+                            {children}
+                        </AnimatePage>
                     </div>
                 </main>
             </div>

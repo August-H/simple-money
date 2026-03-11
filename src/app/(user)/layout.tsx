@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
@@ -9,10 +9,12 @@ import Sidebar from '@/components/Sidebar';
 import Footer from '@/components/Footer';
 import ActivityFeed from '@/components/ActivityFeed';
 import { useState } from 'react';
+import AnimatePage from '@/components/AnimatePage';
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
@@ -44,8 +46,10 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
                         <div className="max-w-7xl mx-auto relative h-full">
                             <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
                             <div className="relative pt-6">
-                                {children}
-                                <Footer />
+                                <AnimatePage key={pathname}>
+                                    {children}
+                                    <Footer />
+                                </AnimatePage>
                             </div>
                         </div>
                     </main>
