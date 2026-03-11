@@ -1,14 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 // One-time migration endpoint to add pending_bundle column if it doesn't exist
 export async function GET() {
     try {
+        const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!url || !key) {
+            return NextResponse.json({ error: 'Supabase Admin credentials not found in environment' }, { status: 500 });
+        }
+
+        const supabaseAdmin = createClient(url, key);
+
         // Try to update a row with pending_bundle to see if column exists
         // If it errors with column not found, we can't do DDL via JS client
         // Instead, use Supabase's REST API to run raw SQL via rpc
