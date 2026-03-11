@@ -94,9 +94,17 @@ export default function AdminBundlesPage() {
     ), [taskItems, productLevelFilter, productSearchQuery]);
 
     const fetchBundles = useCallback(async () => {
-        const { data } = await supabase.from('bundle_packages').select('*').order('required_top_up', { ascending: true });
-        if (data) setBundles(data);
-        setLoading(false);
+        try {
+            const res = await fetch('/api/admin/bundles');
+            if (res.ok) {
+                const data = await res.json();
+                setBundles(data);
+            }
+        } catch (err) {
+            console.error("Fetch Bundles Error:", err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     const fetchUsers = useCallback(async () => {
@@ -121,17 +129,50 @@ export default function AdminBundlesPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            if (editingId === 'new') await supabase.from('bundle_packages').insert(formData);
-            else if (editingId !== null) await supabase.from('bundle_packages').update(formData).eq('id', editingId);
+            const isNew = editingId === 'new';
+            const method = isNew ? 'POST' : 'PATCH';
+            const payload = isNew ? formData : { id: editingId, ...formData };
+
+            const res = await fetch('/api/admin/bundles', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                alert(`Save Error: ${errData.error || 'Unknown error'}`);
+                return;
+            }
+
             setEditingId(null);
             fetchBundles();
+        } catch (err: any) {
+            console.error("Save Bundle Error:", err);
+            alert(`Save Error: ${err.message}`);
         } finally { setSaving(false); }
     };
 
     const handleDelete = async (id: number) => {
         if (!confirm('Permanently remove this bundle from catalog?')) return;
-        await supabase.from('bundle_packages').delete().eq('id', id);
-        fetchBundles();
+        try {
+            const res = await fetch('/api/admin/bundles', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                alert(`Delete Error: ${errData.error || 'Unknown error'}`);
+                return;
+            }
+
+            fetchBundles();
+        } catch (err: any) {
+            console.error("Delete Bundle Error:", err);
+            alert(`Delete Error: ${err.message}`);
+        }
     };
 
     const handleUserSelect = (userId: string) => {
@@ -203,9 +244,15 @@ export default function AdminBundlesPage() {
             }
 
             const result = await res.json();
-            if (result.error) setAssignMsg({ type: 'error', text: result.error });
-            else {
+            if (result.error) {
+                setAssignMsg({ type: 'error', text: result.error });
+                alert(`Error: ${result.error}`);
+            } else {
                 setAssignMsg({ type: 'success', text: `Bundle success for ${selectedUser?.username}!` });
+                alert(`Success: Bundle assigned to ${selectedUser?.username}!`);
+                setSelectedUserId('');
+                setSelectedTaskIds([]);
+                setAssignForm({ name: 'Special Bundle Package', description: '', productAmount: '', targetIndex: 35 });
                 fetchUsers();
             }
         } catch (err) {
@@ -221,9 +268,12 @@ export default function AdminBundlesPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId }),
             });
-            if (res.ok) fetchUsers();
-            else {
+            if (res.ok) {
+                alert("Bundle successfully removed from queue.");
+                fetchUsers();
+            } else {
                 const txt = await res.text();
+                alert(`Error clearing bundle: ${txt}`);
                 console.error("Clear bundle error:", txt);
             }
         } catch (err) {
@@ -373,9 +423,16 @@ export default function AdminBundlesPage() {
                 <div className="xl:col-span-4 space-y-6">
                     <div className="glass-card p-6 border-amber-500/20 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-                        <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
-                            <Zap size={18} className="text-amber-500" /> User Allocation
-                        </h3>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-black text-white flex items-center gap-2">
+                                <Zap size={18} className="text-amber-500" /> User Allocation
+                            </h3>
+                            {selectedUserId && users.find(u => u.id === selectedUserId)?.pending_bundle && (
+                                <div className="px-3 py-1 bg-primary/20 border border-primary/30 rounded-lg animate-pulse">
+                                    <span className="text-[10px] font-black text-primary-light uppercase tracking-widest">Editing Mode</span>
+                                </div>
+                            )}
+                        </div>
 
                         <div className="space-y-4 relative z-10">
                             {/* User Select */}
@@ -727,7 +784,7 @@ export default function AdminBundlesPage() {
                                                 </div>
                                             </td>
                                             <td className="p-4 text-right">
-                                                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="flex justify-end gap-2">
                                                     <button onClick={() => { setEditingId(b.id); setFormData({ ...b }); }} className="p-2 rounded-lg bg-white/5 text-text-secondary hover:text-white border border-white/10 hover:border-white/20"><Pencil size={14} /></button>
                                                     <button onClick={() => handleDelete(b.id)} className="p-2 rounded-lg bg-danger/10 text-danger hover:bg-danger/20 border border-danger/20"><Trash2 size={14} /></button>
                                                 </div>
