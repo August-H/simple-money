@@ -611,8 +611,17 @@
   animation: scaleIn 0.3s ease-out;
 }
 
+@keyframes reverse-spin {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
 .animate-spin-slow {
-  animation: spin 3s linear infinite;
+  animation: spin 8s linear infinite;
+}
+
+.animate-reverse-spin {
+  animation: reverse-spin 6s linear infinite;
 }
 
 /* Custom Scrollbar Utilities */

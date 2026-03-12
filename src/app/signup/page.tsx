@@ -377,15 +377,16 @@ function OldSignupPage() {
                                         </>
                                     )}
                                     <div>
-                                        <label className="block text-xs font-bold text-text-secondary mb-2 uppercase tracking-widest">Referral Code (Optional)</label>
+                                        <label className="block text-xs font-bold text-text-secondary mb-2 uppercase tracking-widest">Referral Code (Mandatory)</label>
                                         <div className="relative">
                                             <input
                                                 type="text"
                                                 name="referralCode"
                                                 value={formData.referralCode}
                                                 onChange={handleChange}
-                                                placeholder="Enter referral code"
+                                                placeholder="Enter required referral code"
                                                 className="input-field pl-12 uppercase"
+                                                required
                                             />
                                             <Users size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-light" />
                                         </div>

@@ -330,8 +330,11 @@ export default function SettingsPage() {
                         )}
 
                         {activeModal === 'language' && (
-                            <div className="grid grid-cols-1 gap-2 overflow-y-auto max-h-[300px] pr-1">
-                                {availableLanguages.map((opt) => (
+                            <div className="grid grid-cols-1 gap-2 overflow-y-auto max-h-[400px] pr-1 custom-scrollbar">
+                                {[
+                                    'English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 
+                                    'Arabic', 'Portuguese', 'Turkish', 'Russian', 'Hindi', 'Vietnamese'
+                                ].map((opt) => (
                                     <button 
                                         key={opt}
                                         onClick={() => { handleUpdateProfileSetting('language', opt); setActiveModal(null); }}
