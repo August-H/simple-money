@@ -91,7 +91,7 @@ export default function StartPage() {
                 const [levelsRes, pastTasksRes, itemsRes] = await Promise.all([
                     supabase.from('levels').select('id, tasks_per_set, sets_per_day, commission_rate').order('price', { ascending: true }),
                     supabase.from('user_tasks').select('task_item_id, status').eq('user_id', profile.id).neq('status', 'cancelled'),
-                    supabase.from('task_items').select('*').eq('is_active', true).eq('level_id', profile.level_id).limit(300)
+                    supabase.from('task_items').select('*').eq('is_active', true).eq('level_id', profile.level_id).order('created_at', { ascending: false }).limit(300)
                 ]);
 
                 // 1. Level Logic
@@ -362,7 +362,7 @@ export default function StartPage() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto pb-12 relative -mt-16 md:-mt-20">
+        <div className="max-w-6xl mx-auto pb-12 relative pt-0 -mt-16 md:-mt-20">
             <div className="absolute top-1/4 -left-20 w-80 h-80 glass-prism rounded-full opacity-20 pointer-events-none blur-xl animate-pulse-glow" />
             <div className="absolute bottom-1/4 -right-20 w-96 h-96 glass-prism rounded-full opacity-20 pointer-events-none blur-2xl animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
 
