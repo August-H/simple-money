@@ -21,6 +21,7 @@ import {
     ArrowUpFromLine,
     Package,
     Bell,
+    AlertCircle,
 } from 'lucide-react';
 import AnimatePage from '@/components/AnimatePage';
 
@@ -43,6 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const pathname = usePathname();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [pendingCounts, setPendingCounts] = useState({ deposits: 0, withdrawals: 0 });
+    const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
     const fetchPendingCounts = async () => {
         const { data: deposits } = await supabase
@@ -175,7 +177,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         </div>
                     </div>
                     <button
-                        onClick={signOut}
+                        onClick={() => setShowSignOutConfirm(true)}
                         className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl text-error/90 hover:text-error hover:bg-error/10 transition-all text-sm font-bold w-full group"
                     >
                         <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
@@ -207,6 +209,38 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </div>
                 </main>
             </div>
+
+            {/* Sign Out Confirmation Modal */}
+            {showSignOutConfirm && (
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 sm:p-0">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md animate-fade-in" onClick={() => setShowSignOutConfirm(false)} />
+                    <div className="relative glass-card-strong w-full max-w-sm p-8 animate-scale-up border-danger/20">
+                        <div className="flex flex-col items-center text-center space-y-6">
+                            <div className="w-20 h-20 rounded-full bg-danger/10 flex items-center justify-center text-danger animate-pulse border border-danger/20 shadow-[0_0_20px_rgba(255,0,0,0.1)]">
+                                <LogOut size={40} />
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-black text-text-primary uppercase tracking-tight">System Termination</h3>
+                                <p className="text-sm text-text-secondary font-medium">Are you sure you want to exit the administrator terminal?</p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 w-full pt-2">
+                                <button 
+                                    onClick={() => setShowSignOutConfirm(false)}
+                                    className="p-4 rounded-xl bg-white/5 text-text-secondary font-bold hover:bg-white/10 transition-all uppercase text-[10px] tracking-widest border border-white/5"
+                                >
+                                    Abort
+                                </button>
+                                <button 
+                                    onClick={() => { setShowSignOutConfirm(false); signOut(); }}
+                                    className="p-4 rounded-xl bg-danger text-white font-black hover:bg-danger/80 transition-all shadow-lg shadow-danger/20 uppercase text-[10px] tracking-widest"
+                                >
+                                    Deactivate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
