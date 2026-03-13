@@ -398,6 +398,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -424,12 +425,15 @@
   0% {
     border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
   }
+
   33% {
     border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%;
   }
+
   66% {
     border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
   }
+
   100% {
     border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
   }
@@ -440,10 +444,13 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.6;
     transform: scale(1.05);
@@ -481,14 +488,18 @@
 }
 
 @keyframes liquid-morph {
-  0%, 100% {
+
+  0%,
+  100% {
     border-radius: 40% 60% 50% 50% / 50% 40% 60% 50%;
     transform: scale(1);
   }
+
   33% {
     border-radius: 60% 40% 60% 40% / 40% 60% 40% 60%;
     transform: scale(1.08);
   }
+
   66% {
     border-radius: 50% 50% 40% 60% / 60% 50% 50% 40%;
     transform: scale(0.95);
@@ -496,8 +507,13 @@
 }
 
 @keyframes liquid-drift {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .glass-water {
@@ -612,8 +628,13 @@
 }
 
 @keyframes reverse-spin {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
 }
 
 .animate-spin-slow {
@@ -653,17 +674,19 @@
 
 /* Custom Start Page Padding */
 .start-container-padding {
-    padding-top: 20px; /* Mobile - subtle gap below layout header */
+  padding-top: -20px;
+  /* Mobile - subtle gap below layout header */
 }
 
 @media (min-width: 768px) {
-    .start-container-padding {
-        padding-top: 60px;
-    }
+  .start-container-padding {
+    padding-top: -60px;
+  }
 }
 
 @media (min-width: 1024px) {
-    .start-container-padding {
-        padding-top: 200px; /* Laptop - exactly 200px below the layout header */
-    }
+  .start-container-padding {
+    padding-top: -200px;
+    /* Laptop - exactly 200px below the layout header */
+  }
 }

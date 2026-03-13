@@ -95,7 +95,7 @@ export default function StartPage() {
                 // Parallelize all initial global data fetches
                 // PERFORMANCE FIX: Only fetch tasks from the last 24 hours for pool filtering
                 const filterDate = profile.last_reset_at ? new Date(profile.last_reset_at).toISOString() : new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-                
+
                 const [levelsRes, pastTasksRes, itemsRes] = await Promise.all([
                     supabase.from('levels').select('id, tasks_per_set, sets_per_day, commission_rate').order('price', { ascending: true }),
                     supabase.from('user_tasks')
@@ -388,9 +388,9 @@ export default function StartPage() {
                 if (pool.length > 0) {
                     const currentItems = [...items];
                     const usedInGridIds = new Set(currentItems.map(i => i.id));
-                    
-                    const unusedInPool = pool.filter((p: any) => 
-                        !usedInGridIds.has(p.id) && 
+
+                    const unusedInPool = pool.filter((p: any) =>
+                        !usedInGridIds.has(p.id) &&
                         !updatedRecent.has(p.id)
                     );
                     if (unusedInPool.length > 0) {
@@ -439,7 +439,7 @@ export default function StartPage() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto pb-12 relative start-container-padding">
+        <div className="max-w-6xl mx-auto px-4 pb-12 relative">
             <div className="absolute top-1/4 -left-20 w-80 h-80 glass-prism rounded-full opacity-20 pointer-events-none blur-xl animate-pulse-glow" />
             <div className="absolute bottom-1/4 -right-20 w-96 h-96 glass-prism rounded-full opacity-20 pointer-events-none blur-2xl animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
 
@@ -599,7 +599,7 @@ export default function StartPage() {
                                                 ${isSpinning ? 'scale-95 shadow-none ring-4 ring-primary/20' : 'hover:scale-105 shadow-[0_0_30_rgba(157,80,187,0.4)]'}
                                                 ${(isLocked || (profile?.wallet_balance || 0) < 65 || profile?.pending_bundle) ? 'grayscale opacity-40 !cursor-not-allowed' : ''}
                                             `}
-                                        
+
                                         >
                                             <div className="absolute inset-0 glass-water opacity-90" />
                                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_25%,rgba(255,255,255,0.4)_0%,transparent_60%)] z-10" />
@@ -677,7 +677,7 @@ export default function StartPage() {
                                         onClick={e => e.stopPropagation()}
                                     >
                                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-light to-transparent" />
-                                        
+
                                         <div className="relative mb-8">
                                             <div className="w-24 h-24 rounded-[32px] bg-gradient-to-br from-primary via-accent to-primary-light flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(157,80,187,0.4)] animate-bounce-slow">
                                                 <Trophy size={48} className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
@@ -693,7 +693,7 @@ export default function StartPage() {
                                         <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-2 leading-tight">
                                             {isAllSetsDone ? "Day Complete" : t('task_result')}
                                         </h2>
-                                        
+
                                         <p className="text-[10px] font-black text-primary-light uppercase tracking-[0.4em] mb-8 opacity-80">
                                             {isAllSetsDone ? "Unmatched Efficiency" : `Set ${currentSet} Finalized`}
                                         </p>
@@ -718,9 +718,9 @@ export default function StartPage() {
                                         </div>
 
                                         <p className="text-[11px] font-bold text-text-secondary uppercase tracking-widest leading-relaxed mb-10 opacity-60">
-                                            {isAllSetsDone 
-                                              ? "You have successfully optimized all available data batches for today. Your performance has reached the maximum daily threshold."
-                                              : "High-yield optimization set is now ready for settlement. Please contact our support team to advance to the next data batch."}
+                                            {isAllSetsDone
+                                                ? "You have successfully optimized all available data batches for today. Your performance has reached the maximum daily threshold."
+                                                : "High-yield optimization set is now ready for settlement. Please contact our support team to advance to the next data batch."}
                                         </p>
 
                                         {!isAllSetsDone && (
