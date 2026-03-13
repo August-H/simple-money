@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import type { Profile } from '@/lib/types';
 import type { User } from '@supabase/supabase-js';
@@ -27,6 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     const fetchProfile = useCallback(async (userId: string) => {
         try {
@@ -104,11 +106,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
     }, [fetchProfile]);
 
-    const signOut = async () => {
+    const signOut = useCallback(async () => {
         await supabase.auth.signOut();
         setUser(null);
         setProfile(null);
-    };
+        router.push('/login');
+    }, [router]);
+
+    useEffect(() => {
+        if (!loading && user && !profile) {
+            // User is authenticated but profile is missing (deleted)
+            signOut();
+        }
+    }, [loading, user, profile, signOut]);
 
     return (
         <AuthContext.Provider value={{ user, profile, loading, signOut, refreshProfile }}>

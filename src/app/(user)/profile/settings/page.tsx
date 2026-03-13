@@ -33,6 +33,7 @@ export default function SettingsPage() {
         if (profile) {
             setLanguage(profile.language || 'English');
             setCurrency(profile.currency || 'USD');
+            setNotifications(profile.notifications_enabled !== false);
         }
     }, [profile]);
 

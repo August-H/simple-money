@@ -232,7 +232,10 @@ export default function LevelsPage() {
                             Rewards and commission structures are audited monthly to ensure maximum profitability for all Simple Money partners.
                         </p>
                     </div>
-                    <button className="w-fit px-8 py-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-full text-[10px] font-black text-text-primary dark:text-white uppercase tracking-widest hover:bg-black/10 hover:dark:bg-white/10 transition-colors">
+                    <button 
+                        onClick={() => window.print()}
+                        className="w-fit px-8 py-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-full text-[10px] font-black text-text-primary dark:text-white uppercase tracking-widest hover:bg-black/10 hover:dark:bg-white/10 transition-colors"
+                    >
                         Download VIP Charter (PDF)
                     </button>
                 </div>

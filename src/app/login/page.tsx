@@ -108,7 +108,13 @@ export default function LoginPage() {
                     .from('profiles')
                     .select('role')
                     .eq('id', signInData.user.id)
-                    .single();
+                    .maybeSingle();
+
+                if (!profileData) {
+                    await supabase.auth.signOut();
+                    throw new Error('This account has been deactivated or does not exist.');
+                }
+
                 const isAdmin = profileData?.role === 'admin';
                 router.push(isAdmin ? '/dashboard-alpha' : '/home');
                 router.refresh();

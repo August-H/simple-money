@@ -340,7 +340,6 @@ export default function HomePage() {
                         { icon: ArrowDownLeft, label: t('deposit'), color: 'text-primary', bg: 'bg-primary/10', href: '/deposit' },
                         { icon: ArrowUpRight, label: t('withdraw'), color: 'text-accent', bg: 'bg-accent/10', href: '/withdraw' },
                         { icon: Building2, label: t('institutional'), color: 'text-yellow-500', bg: 'bg-yellow-500/10', href: '/company' },
-                        { icon: Headset, label: 'Concierge Hub', color: 'text-purple-500', bg: 'bg-purple-500/10', href: '/concierge' },
                         { icon: FileText, label: 'Certificate', color: 'text-success', bg: 'bg-success/10', href: '/certificate' },
                     ].map((item, i) => (
                         <Link key={i} href={item.href} className="group">
@@ -368,10 +367,26 @@ export default function HomePage() {
                             </div>
                             <span className="text-[10px] font-black text-text-primary/80 dark:text-white/80 uppercase tracking-[0.3em]">AFFILIATE PROGRAM</span>
                         </div>
-                        <h3 className="text-2xl md:text-3xl font-black text-text-primary dark:text-white tracking-tight leading-tight uppercase">
-                            Invite friends & <br />
-                            <span className="text-text-primary/70 dark:text-white/70">earn together</span>
-                        </h3>
+                        <div className="space-y-2">
+                            <h3 className="text-2xl md:text-3xl font-black text-text-primary dark:text-white tracking-tight leading-tight uppercase">
+                                Invite friends & <br />
+                                <span className="text-text-primary/70 dark:text-white/70">earn together</span>
+                            </h3>
+                            <p className="text-[10px] font-bold text-text-primary/60 dark:text-white/60 uppercase tracking-widest leading-relaxed max-w-sm">
+                                Expand the Simple Money network. Direct referrals grant a perpetual yields optimization fee based on their productivity.
+                            </p>
+                        </div>
+                        <div className="flex gap-4 pt-2">
+                            <div className="flex flex-col">
+                                <span className="text-lg font-black text-text-primary dark:text-white">20%</span>
+                                <span className="text-[8px] font-black text-text-primary/40 dark:text-white/40 uppercase tracking-widest">Commission</span>
+                            </div>
+                            <div className="w-px h-8 bg-text-primary/10 dark:bg-white/10" />
+                            <div className="flex flex-col">
+                                <span className="text-lg font-black text-text-primary dark:text-white">Instant</span>
+                                <span className="text-[8px] font-black text-text-primary/40 dark:text-white/40 uppercase tracking-widest">Settlements</span>
+                            </div>
+                        </div>
                     </div>
 
                     <Link href="/invite" className="group/btn relative inline-flex items-center justify-center px-10 py-5 bg-[#00FF88] text-black font-black text-sm uppercase tracking-[0.15em] rounded-2xl shadow-[0_0_30px_rgba(0,255,136,0.3)] hover:shadow-[0_0_50px_rgba(0,255,136,0.5)] transition-all hover:-translate-y-1 active:translate-y-0 w-full md:w-auto overflow-hidden z-20">

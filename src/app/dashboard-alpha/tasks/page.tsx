@@ -65,8 +65,15 @@ export default function AdminTasksPage() {
 
     const fetchItems = async () => {
         setLoading(true);
-        const { data } = await supabase.from('task_items').select('*').order('id', { ascending: true }).limit(5000);
+        // Supabase has a default limit of 1000. We explicitly request 5000 to see the full catalog.
+        const { data, error } = await supabase
+            .from('task_items')
+            .select('*')
+            .order('id', { ascending: true })
+            .limit(5000);
+            
         if (data) setItems(data);
+        if (error) console.error('Error fetching items:', error);
         setLoading(false);
     };
 
@@ -161,34 +168,34 @@ export default function AdminTasksPage() {
         }
         
         let allGeneratedItems: any[] = [];
-        let globalIndex = 1;
+        let poolIndex = 0;
 
         for (const config of generationMap) {
-            // Level-specific themes using the dynamic pool from API
             const pool = productPool.length > 0 ? productPool : [{ name: 'Premium Product', cat: 'general', path: '/items/premium/headphones.png' }];
             let levelPool = pool;
-            if (config.level === 1) levelPool = pool.filter((p: any) => p.cat === 'electrical') || pool;
-            else if (config.level === 2) levelPool = pool.filter((p: any) => p.cat === 'furniture') || pool;
-            else if (config.level === 3) levelPool = pool.filter((p: any) => p.cat === 'gym' || p.cat === 'fashion') || pool;
-            else if (config.level === 4) levelPool = pool.filter((p: any) => p.cat === 'automotive' || p.cat === 'electrical') || pool;
-            // Level 5 uses all categories
+            
+            // Level-specific filtering
+            if (config.level === 1) levelPool = pool.filter(p => p.cat === 'electrical');
+            else if (config.level === 2) levelPool = pool.filter(p => p.cat === 'furniture');
+            else if (config.level === 3) levelPool = pool.filter(p => p.cat === 'gym' || p.cat === 'fashion');
+            else if (config.level === 4) levelPool = pool.filter(p => p.cat === 'automotive' || p.cat === 'electrical');
+            
             if (levelPool.length === 0) levelPool = pool;
 
-            const items = Array.from({ length: config.count }).map((_, i) => {
-                const product = levelPool[Math.floor(Math.random() * levelPool.length)];
-                const imgUrl = product.path;
-                const seqId = (i + 1).toString().padStart(2, '0');
+            for (let i = 0; i < config.count; i++) {
+                const product = levelPool[poolIndex % levelPool.length];
+                poolIndex++;
+                const seqId = (i + 1).toString().padStart(3, '0');
 
-                return {
+                allGeneratedItems.push({
                     title: `LEVEL ${config.level} - #${seqId} - ${product.name}`,
                     description: `Premium grade ${product.cat} product curated for VIP ${config.level}. High authority and verified quality.`,
                     category: product.cat,
                     level_id: config.level,
-                    image_url: imgUrl,
+                    image_url: product.path,
                     is_active: true
-                };
-            });
-            allGeneratedItems = [...allGeneratedItems, ...items];
+                });
+            }
         }
 
         for (let i = 0; i < allGeneratedItems.length; i += 50) {
@@ -197,7 +204,7 @@ export default function AdminTasksPage() {
         }
         
         await fetchItems();
-        alert(`Successfully generated ${totalToGenerate} items across VIP Levels 1-5!`);
+        alert(`Successfully generated ${allGeneratedItems.length} items across VIP Levels!`);
     };
 
     const handleBulkGenerateCurrentLevel = async () => {

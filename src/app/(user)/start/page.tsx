@@ -90,7 +90,7 @@ export default function StartPage() {
                 // Parallelize all initial global data fetches
                 const [levelsRes, pastTasksRes, itemsRes] = await Promise.all([
                     supabase.from('levels').select('id, tasks_per_set, sets_per_day, commission_rate').order('price', { ascending: true }),
-                    supabase.from('user_tasks').select('task_item_id, status').eq('user_id', profile.id).neq('status', 'cancelled'),
+                    supabase.from('user_tasks').select('task_item_id, status, completed_at').eq('user_id', profile.id).neq('status', 'cancelled'),
                     supabase.from('task_items').select('*').eq('is_active', true).eq('level_id', profile.level_id).order('created_at', { ascending: false }).limit(300)
                 ]);
 
@@ -119,8 +119,8 @@ export default function StartPage() {
                 // Only filter items completed today (since last reset) for current pool
                 const lastResetDate = profile.last_reset_at ? new Date(profile.last_reset_at) : new Date(Date.now() - 24 * 60 * 60 * 1000);
                 const recentUsedIds = new Set(
-                    (pastTasksRes.data || [])
-                        .filter(t => new Date(t.created_at) > lastResetDate)
+                    ((pastTasksRes.data || []) as any[])
+                        .filter(t => t.completed_at && new Date(t.completed_at) > lastResetDate)
                         .map(t => t.task_item_id)
                 );
                 

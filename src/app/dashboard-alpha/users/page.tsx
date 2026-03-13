@@ -60,7 +60,9 @@ export default function AdminUsersPage() {
             role: editData.role,
             wallet_balance: (editData.wallet_balance as any) === '' ? 0 : Number(editData.wallet_balance),
             profit: (editData.profit as any) === '' ? 0 : Number(editData.profit),
+            total_profit: (editData.total_profit as any) === '' ? 0 : Number(editData.total_profit),
             referral_earned: (editData.referral_earned as any) === '' ? 0 : Number(editData.referral_earned),
+            frozen_amount: (editData.frozen_amount as any) === '' ? 0 : Number(editData.frozen_amount),
             level_id: editData.level_id,
             completed_count: editData.completed_count,
             current_set: editData.current_set || 1,
@@ -74,9 +76,25 @@ export default function AdminUsersPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this user?')) return;
-        await supabase.from('profiles').delete().eq('id', id);
-        fetchUsers();
+        if (!confirm('Are you sure you want to delete this user PERMANENTLY? This will also remove their login access.')) return;
+        setLoading(true);
+        try {
+            const res = await fetch('/api/admin/delete-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: id }),
+            });
+            const result = await res.json();
+            if (result.error) {
+                alert(`Deletion failed: ${result.error}`);
+            } else {
+                fetchUsers();
+            }
+        } catch {
+            alert('An unexpected error occurred during deletion.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const copyCode = (code: string) => {
@@ -230,6 +248,7 @@ export default function AdminUsersPage() {
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[9px] text-success">Task Profit</th>
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[9px] text-primary-light">Ref Bonus</th>
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[9px]">Frozen</th>
+                                <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[9px] text-accent">Total Profit</th>
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[9px]">VIP</th>
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[9px]">Progress</th>
                                 <th className="text-left p-4 text-text-secondary font-black uppercase tracking-widest text-[9px]">Affiliate</th>
@@ -269,6 +288,7 @@ export default function AdminUsersPage() {
                                                     <td className="p-3"><input type="number" step="0.01" className="input-field py-1.5 text-[11px] w-20 font-mono font-bold text-success border-success/30" value={editData.profit || 0} onChange={(e) => setEditData({ ...editData, profit: parseFloat(e.target.value) || 0 })} title="Task Profit Only" /></td>
                                                     <td className="p-3"><input type="number" step="0.01" className="input-field py-1.5 text-[11px] w-20 font-mono font-bold text-primary-light border-primary/30" value={editData.referral_earned || 0} onChange={(e) => setEditData({ ...editData, referral_earned: parseFloat(e.target.value) || 0 })} title="Referral Bonuses Only" /></td>
                                                     <td className="p-3"><input type="number" step="0.01" className="input-field py-1.5 text-[11px] w-20 font-mono font-bold text-danger/70" value={editData.frozen_amount || 0} onChange={(e) => setEditData({ ...editData, frozen_amount: parseFloat(e.target.value) || 0 })} title="Frozen Balance" /></td>
+                                                    <td className="p-3"><input type="number" step="0.01" className="input-field py-1.5 text-[11px] w-20 font-mono font-bold text-accent border-accent/20" value={editData.total_profit || 0} onChange={(e) => setEditData({ ...editData, total_profit: parseFloat(e.target.value) || 0 })} title="Lifetime Total Profit" /></td>
                                                     <td className="p-3">
                                                         <select className="input-field py-1.5 text-xs font-black w-24 border-primary/30" value={editData.level_id || 1} onChange={(e) => setEditData({ ...editData, level_id: parseInt(e.target.value) })}>
                                                             {[1, 2, 3, 4, 5].map(lvl => <option key={lvl} value={lvl} className="bg-[#1a1a2e]">Level {lvl}</option>)}
@@ -335,6 +355,7 @@ export default function AdminUsersPage() {
                                                     <td className="p-4"><span className="font-mono font-bold text-success text-[11px] whitespace-nowrap">${user.profit?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></td>
                                                     <td className="p-4"><span className="font-mono font-bold text-primary-light text-[11px] whitespace-nowrap">${user.referral_earned?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></td>
                                                     <td className="p-4"><span className="font-mono font-bold text-danger/70 text-[11px] whitespace-nowrap">${user.frozen_amount?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></td>
+                                                    <td className="p-4"><span className="font-mono font-bold text-accent text-[11px] whitespace-nowrap">${user.total_profit?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></td>
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-2">
                                                             <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">

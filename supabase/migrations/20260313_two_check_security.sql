@@ -11,6 +11,10 @@ DROP FUNCTION IF EXISTS public.complete_user_task(INT, DECIMAL, DECIMAL);
 DROP FUNCTION IF EXISTS public.complete_user_task(INT, NUMERIC);
 DROP FUNCTION IF EXISTS public.complete_user_task(INT, NUMERIC, NUMERIC);
 
+-- 3. ENSURE INDEXES FOR DUPLICATE PROTECTION
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_tasks_pending_unique ON public.user_tasks (user_id) WHERE status = 'pending';
+CREATE INDEX IF NOT EXISTS idx_user_tasks_user_item_completed ON public.user_tasks (user_id, task_item_id) WHERE status = 'completed';
+
 -- CREATE UNIFIED FUNCTION
 CREATE OR REPLACE FUNCTION public.complete_user_task(
     p_task_item_id INT,
@@ -96,6 +100,11 @@ BEGIN
 
     -- F. APPLY NEW TASK SECURITY CHECKS (Only for STARTING new orders)
     IF v_pending_task_id IS NULL THEN
+        -- GLOBAL PENDING CHECK: Cannot start ANY new task if ANY other task is pending
+        IF EXISTS (SELECT 1 FROM public.user_tasks WHERE user_id = v_user_id AND status = 'pending') THEN
+            RAISE EXCEPTION 'You have a pending order. Please complete or settle it before starting a new one.';
+        END IF;
+
         -- CHECK 2: LEVEL MINIMUM BALANCE REQUIREMENT
         IF v_wallet_balance < v_level_price THEN
             RAISE EXCEPTION 'Insufficient balance to start new task. Minimum required for Level % is $%', v_level_id, v_level_price;
@@ -106,7 +115,7 @@ BEGIN
             RAISE EXCEPTION 'Maximum daily sets ( % / % ) reached. Come back tomorrow!', v_sets_per_day, v_sets_per_day;
         END IF;
         
-        -- Duplicate Protection
+        -- Duplicate Protection (Item Specific)
         IF EXISTS (
             SELECT 1 FROM public.user_tasks 
             WHERE user_id = v_user_id 

@@ -79,18 +79,35 @@ export default function ConciergeHubPage() {
                         </p>
                     </div>
 
-                    <button 
-                        onClick={() => {
-                            const tawk = (window as any).Tawk_API;
-                            if (tawk) {
-                                tawk.showWidget?.();
-                                tawk.maximize?.();
-                            }
-                        }}
-                        className="btn-primary px-10 py-4 text-sm font-black uppercase tracking-widest flex items-center gap-3 group/btn"
-                    >
-                        Contact Concierge <ArrowRight className="group-hover/btn:translate-x-1 transition-transform" />
-                    </button>
+                    <div className="flex flex-wrap gap-4">
+                        <button 
+                            onClick={() => {
+                                const tawk = (window as any).Tawk_API;
+                                if (tawk) {
+                                    tawk.showWidget?.();
+                                    tawk.maximize?.();
+                                }
+                            }}
+                            className="bg-primary hover:bg-primary-hover text-white px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 group/btn shadow-lg shadow-primary/20 transition-all active:scale-95"
+                        >
+                            Live Chat <ArrowRight className="group-hover/btn:translate-x-1 transition-transform" />
+                        </button>
+
+                        <a 
+                            href="https://wa.me/1234567890" 
+                            target="_blank"
+                            className="bg-[#25D366]/20 border border-[#25D366]/30 text-[#25D366] px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 hover:bg-[#25D366]/30 transition-all active:scale-95"
+                        >
+                            WhatsApp
+                        </a>
+
+                        <a 
+                            href="mailto:support@simplemoney.com"
+                            className="bg-accent/20 border border-accent/30 text-accent-light px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 hover:bg-accent/30 transition-all active:scale-95"
+                        >
+                            Email Support
+                        </a>
+                    </div>
                 </div>
             </div>
 
