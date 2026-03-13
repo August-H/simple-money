@@ -666,11 +666,21 @@ export default function StartPage() {
                                         </p>
 
                                         <div className="space-y-4 mb-10 bg-white/5 rounded-3xl p-6 border border-white/5">
-                                            <div className="flex flex-col gap-1 items-center">
+                                            <div className="flex flex-col gap-1 items-center pb-4 border-b border-white/5">
                                                 <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40">Wallet Balance</span>
                                                 <span className="text-4xl font-black text-white tracking-tighter tabular-nums drop-shadow-lg">
                                                     {format(profile?.wallet_balance || 0)}
                                                 </span>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4 pt-2">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-[8px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40 leading-none mb-2">Today's Profit</span>
+                                                    <span className="text-sm font-black text-success tabular-nums leading-none">+{format(profile?.profit || 0)}</span>
+                                                </div>
+                                                <div className="flex flex-col items-center border-l border-white/5">
+                                                    <span className="text-[8px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40 leading-none mb-2">Referral Rewards</span>
+                                                    <span className="text-sm font-black text-primary-light tabular-nums leading-none">+{format(profile?.referral_earned || 0)}</span>
+                                                </div>
                                             </div>
                                         </div>
 
