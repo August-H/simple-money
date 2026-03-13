@@ -40,6 +40,7 @@ export default function StartPage() {
     const [isSpinning, setIsSpinning] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [profitAdded, setProfitAdded] = useState<number | null>(null);
+    const [recentlyUsedIdsState, setRecentlyUsedIdsState] = useState<Set<number>>(new Set());
 
     // Matching States
     const [matchingStatus, setMatchingStatus] = useState<string>(t('ready_to_match'));
@@ -120,7 +121,15 @@ export default function StartPage() {
                 }
 
                 // 2. Items logic + Preloading
-                let availableItems = itemsRes.data || [];
+                const lastResetDate = profile.last_reset_at ? new Date(profile.last_reset_at) : new Date(Date.now() - 24 * 60 * 60 * 1000);
+                const recentIds = new Set(
+                    ((pastTasksRes.data || []) as any[])
+                        .filter(t => t.completed_at && new Date(t.completed_at) > lastResetDate)
+                        .map(t => t.task_item_id)
+                );
+                setRecentlyUsedIdsState(recentIds);
+
+                let availableItems = (itemsRes.data || []).filter(item => !recentIds.has(item.id));
 
                 if (availableItems.length === 0 && itemsRes.data && itemsRes.data.length > 0) {
                     availableItems = itemsRes.data;
@@ -357,10 +366,19 @@ export default function StartPage() {
 
                 // REPLACE COMPLETED ITEM IN POOL
                 const pool = (window as any)._allPoolItems || [];
+                // Update local tracking
+                const updatedRecent = new Set(recentlyUsedIdsState);
+                updatedRecent.add(item.id);
+                setRecentlyUsedIdsState(updatedRecent);
+
                 if (pool.length > 0) {
                     const currentItems = [...items];
-                    const usedIds = new Set(currentItems.map(i => i.id));
-                    const unusedInPool = pool.filter((p: any) => !usedIds.has(p.id) && p.id !== item.id);
+                    const usedInGridIds = new Set(currentItems.map(i => i.id));
+                    
+                    const unusedInPool = pool.filter((p: any) => 
+                        !usedInGridIds.has(p.id) && 
+                        !updatedRecent.has(p.id)
+                    );
                     if (unusedInPool.length > 0) {
                         const newItem = unusedInPool[Math.floor(Math.random() * unusedInPool.length)];
                         const itemIdx = currentItems.findIndex(i => i.id === item.id);
