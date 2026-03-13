@@ -20,10 +20,14 @@ import {
     Activity,
     TrendingUp,
     Sparkles,
-    Pointer
+    Pointer,
+    Trophy,
+    Star,
+    MessageCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import confetti from 'canvas-confetti';
 
 export default function StartPage() {
     const { profile, refreshProfile } = useAuth();
@@ -162,6 +166,28 @@ export default function StartPage() {
         }
         return () => clearInterval(spinInterval);
     }, [isSpinning, items.length, selectedItem]);
+
+    useEffect(() => {
+        if (showCompletionModal) {
+            const duration = 3 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 20000 };
+
+            const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+            const interval: any = setInterval(function () {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            }, 250);
+        }
+    }, [showCompletionModal]);
 
     useEffect(() => {
         if (hasPendingTask) {
@@ -610,30 +636,68 @@ export default function StartPage() {
                         {showCompletionModal && (
                             <Portal>
                                 <div
-                                    className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in text-center cursor-pointer"
+                                    className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-2xl animate-fade-in text-center cursor-pointer"
                                     onClick={handleConfirmSettlement}
                                 >
                                     <div
-                                        className="glass-card-strong max-w-sm w-full p-10 animate-scale-in border-success/30 rounded-[32px] relative shadow-[0_50px_140px_rgba(0,0,0,0.95)] cursor-default md:fixed md:left-[59%] md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2"
+                                        className="glass-card-strong max-w-sm w-full p-10 animate-scale-in border-primary/30 rounded-[40px] relative shadow-[0_50px_160px_rgba(157,80,187,0.3)] cursor-default md:fixed md:left-[59%] md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 overflow-hidden"
                                         onClick={e => e.stopPropagation()}
                                     >
-                                        <div className="w-20 h-20 rounded-[28px] bg-success/20 flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(34,197,94,0.3)] relative group overflow-hidden">
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-success/20 to-transparent" />
-                                            <CheckCircle size={40} className="text-success relative z-10" />
-                                        </div>
-                                        <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{t('task_result')}</h2>
-                                        <div className="space-y-4 mb-8">
-                                            <div className="flex justify-between items-center px-2 py-4 border-b border-white/10">
-                                                <span className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40">{t('settlement_amount')}</span>
-                                                <span className="text-lg font-black text-success tracking-tight">{format(profile?.wallet_balance || 0)}</span>
+                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-light to-transparent" />
+                                        
+                                        <div className="relative mb-8">
+                                            <div className="w-24 h-24 rounded-[32px] bg-gradient-to-br from-primary via-accent to-primary-light flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(157,80,187,0.4)] animate-bounce-slow">
+                                                <Trophy size={48} className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                                            </div>
+                                            <div className="absolute -top-2 -right-2">
+                                                <Sparkles className="text-warning animate-pulse" size={24} />
+                                            </div>
+                                            <div className="absolute -bottom-2 -left-2">
+                                                <Star className="text-warning animate-spin-slow" size={24} />
                                             </div>
                                         </div>
-                                        <button
-                                            onClick={handleConfirmSettlement}
-                                            className="w-full py-4 rounded-2xl bg-success/20 text-success border border-success/30 font-black uppercase tracking-widest text-[11px] hover:bg-success/30 transition-all active:scale-95"
-                                        >
-                                            Confirm Settlement
-                                        </button>
+
+                                        <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-2 leading-tight">
+                                            {isAllSetsDone ? "Day Complete" : t('task_result')}
+                                        </h2>
+                                        
+                                        <p className="text-[10px] font-black text-primary-light uppercase tracking-[0.4em] mb-8 opacity-80">
+                                            {isAllSetsDone ? "Unmatched Efficiency" : `Set ${currentSet} Finalized`}
+                                        </p>
+
+                                        <div className="space-y-4 mb-10 bg-white/5 rounded-3xl p-6 border border-white/5">
+                                            <div className="flex flex-col gap-1 items-center">
+                                                <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40">Wallet Balance</span>
+                                                <span className="text-4xl font-black text-white tracking-tighter tabular-nums drop-shadow-lg">
+                                                    {format(profile?.wallet_balance || 0)}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <p className="text-[11px] font-bold text-text-secondary uppercase tracking-widest leading-relaxed mb-10 opacity-60">
+                                            {isAllSetsDone 
+                                              ? "You have successfully optimized all available data batches for today. Your performance has reached the maximum daily threshold."
+                                              : "High-yield optimization set is now ready for settlement. Please contact our support team to advance to the next data batch."}
+                                        </p>
+
+                                        {!isAllSetsDone && (
+                                            <button
+                                                onClick={handleConfirmSettlement}
+                                                className="w-full py-5 rounded-[24px] bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest text-[12px] shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 group"
+                                            >
+                                                <MessageCircle size={20} className="group-hover:rotate-12 transition-transform" />
+                                                Contact Customer Service
+                                            </button>
+                                        )}
+
+                                        {isAllSetsDone && (
+                                            <button
+                                                onClick={() => setShowCompletionModal(false)}
+                                                className="w-full py-5 rounded-[24px] bg-white/10 text-white font-black uppercase tracking-widest text-[12px] border border-white/10 hover:bg-white/20 transition-all active:scale-95"
+                                            >
+                                                Return Home
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </Portal>
