@@ -653,17 +653,17 @@
 
 /* Custom Start Page Padding */
 .start-container-padding {
-    padding-top: 80px;
+    padding-top: 20px; /* Mobile - subtle gap below layout header */
 }
 
 @media (min-width: 768px) {
     .start-container-padding {
-        padding-top: 500px; /* Adjusted to be large but reasonable, user can tweak */
+        padding-top: 60px;
     }
 }
 
 @media (min-width: 1024px) {
     .start-container-padding {
-        padding-top: 800px; /* This matches the *200 units (4px * 200) */
+        padding-top: 200px; /* Laptop - exactly 200px below the layout header */
     }
 }
