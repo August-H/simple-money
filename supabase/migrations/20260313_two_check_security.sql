@@ -123,7 +123,7 @@ BEGIN
             AND status = 'completed'
             AND completed_at > v_last_reset_at
         ) THEN
-            RAISE EXCEPTION 'Optimization detected duplicate item. Please refresh for a new match.';
+            RETURN json_build_object('success', false, 'error_type', 'duplicate_item', 'message', 'Optimization detected duplicate item. Auto-correcting...');
         END IF;
     END IF;
 

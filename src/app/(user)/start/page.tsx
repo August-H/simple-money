@@ -323,6 +323,21 @@ export default function StartPage() {
                 p_task_item_id: item.id,
                 p_cost_amount: costAmount 
             });
+
+            // HANDLE DUPLICATE ITEM SILENTLY (No refresh needed)
+            if (data && data.success === false && data.error_type === 'duplicate_item') {
+                console.warn("Duplicate detected in batch, auto-correcting pool...");
+                // Remove the duplicate item from current items list so it isn't picked again
+                const updatedItems = items.filter(i => i.id !== item.id);
+                setItems(updatedItems);
+                setModalOpen(false);
+                setIsSubmitting(false);
+                
+                // Immediately trigger a new start/match after a tiny delay
+                setTimeout(() => handleStart(), 300);
+                return;
+            }
+
             if (error) throw error;
 
             const earnedAmount = data?.earned_amount ? Number(data.earned_amount) : 0;
