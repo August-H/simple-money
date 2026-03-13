@@ -20,6 +20,7 @@ export default function RecordPage() {
     const [tasks, setTasks] = useState<(UserTask & { task_item: TaskItem })[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'completed' | 'pending'>('all');
+    const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'yesterday'>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [profitAdded, setProfitAdded] = useState<number | null>(null);
@@ -33,7 +34,7 @@ export default function RecordPage() {
             .select('id, status, created_at, completed_at, earned_amount, cost_amount, is_bundle, task_item_id, task_item:task_items(id, title, image_url, category)')
             .eq('user_id', profile.id)
             .order('created_at', { ascending: false })
-            .limit(100);
+            .limit(500);
 
         if (data) {
             setTasks(data as any);
@@ -82,8 +83,22 @@ export default function RecordPage() {
     const filteredTasks = tasks.filter(t => {
         const matchesSearch = t.task_item?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             t.id.toString().includes(searchQuery);
-        const matchesFilter = filter === 'all' || t.status === filter;
-        return matchesSearch && matchesFilter;
+        const matchesStatus = filter === 'all' || t.status === filter;
+
+        // Date Filtering
+        const taskDate = new Date(t.created_at);
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        const isToday = taskDate.toDateString() === today.toDateString();
+        const isYesterday = taskDate.toDateString() === yesterday.toDateString();
+
+        const matchesDate = dateFilter === 'all' || 
+                           (dateFilter === 'today' && isToday) || 
+                           (dateFilter === 'yesterday' && isYesterday);
+
+        return matchesSearch && matchesStatus && matchesDate;
     });
 
     const statusBadge = (status: string) => {
@@ -140,20 +155,36 @@ export default function RecordPage() {
                 </div>
             </div>
 
-            <div className="flex border-b border-black/5 dark:border-white/5 relative">
-                {(['all', 'completed', 'pending'] as const).map(f => (
-                    <button
-                        key={f}
-                        onClick={() => setFilter(f)}
-                        className={`px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all relative z-10 ${filter === f ? 'text-primary-light' : 'text-text-secondary hover:text-text-primary'
+            <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-black/5 dark:border-white/5 gap-2">
+                <div className="flex relative">
+                    {(['all', 'completed', 'pending'] as const).map(f => (
+                        <button
+                            key={f}
+                            onClick={() => setFilter(f)}
+                            className={`px-6 md:px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all relative z-10 ${filter === f ? 'text-primary-light' : 'text-text-secondary hover:text-text-primary'
+                                }`}
+                        >
+                            {t(f)}
+                            {filter === f && (
+                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary via-primary-light to-primary shadow-[0_0_10px_var(--color-primary)] animate-fade-in" />
+                            )}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="flex bg-black/10 dark:bg-white/5 p-1 rounded-xl border border-black/5 dark:border-white/5 mb-2 mr-2 self-start md:self-center">
+                    {(['all', 'today', 'yesterday'] as const).map(df => (
+                        <button
+                            key={df}
+                            onClick={() => setDateFilter(df)}
+                            className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tight transition-all ${
+                                dateFilter === df ? 'bg-primary text-white shadow-md' : 'text-text-secondary hover:text-text-primary'
                             }`}
-                    >
-                        {t(f)}
-                        {filter === f && (
-                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary via-primary-light to-primary shadow-[0_0_10px_var(--color-primary)] animate-fade-in" />
-                        )}
-                    </button>
-                ))}
+                        >
+                            {df === 'all' ? 'All Time' : t(df) || df}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             <div className="glass-card overflow-hidden border border-white/5 bg-surface/50">
