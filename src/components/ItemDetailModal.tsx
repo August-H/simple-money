@@ -126,7 +126,7 @@ export default function ItemDetailModal({
                         >
                             {isSubmitting ? (
                                 <>
-                                    <Loader2 className="animate-spin" size={20} /> Optimizing...
+                                    <Loader2 className="animate-spin" size={20} /> Processing...
                                 </>
                             ) : (
                                 <>

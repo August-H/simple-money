@@ -25,7 +25,8 @@ import {
     TrendingUp,
     ShieldCheck,
     CheckCircle,
-    Diamond
+    Diamond,
+    CircleDollarSign
 } from 'lucide-react';
 
 
@@ -78,11 +79,17 @@ export default function LevelsPage() {
                     <h1 className="text-2xl font-black text-text-primary dark:text-white uppercase tracking-tight">VIP Experience</h1>
                     <p className="text-text-secondary text-xs mt-1 font-bold uppercase tracking-widest font-mono opacity-60">Tier Management Hub</p>
                 </div>
-                <div className="text-right">
-                    <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">Current Status</span>
-                    <div className="flex items-center gap-2 mt-1">
-                        <span className="text-lg font-black text-primary-light">LV{currentLevelId} Verified</span>
-                        <div className="w-2 h-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_var(--color-success)]" />
+                <div className="flex flex-col items-end gap-3">
+                    <Link href="/salary" className="flex items-center gap-2 px-4 py-2 bg-primary/20 border border-primary/30 rounded-xl hover:bg-primary/30 transition-all group">
+                        <CircleDollarSign size={16} className="text-primary-light group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-black text-primary-light uppercase tracking-widest">View Salary Benefits</span>
+                    </Link>
+                    <div className="text-right">
+                        <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">Current Status</span>
+                        <div className="flex items-center gap-2 mt-1">
+                            <span className="text-lg font-black text-primary-light">LV{currentLevelId} Verified</span>
+                            <div className="w-2 h-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_var(--color-success)]" />
+                        </div>
                     </div>
                 </div>
             </div>

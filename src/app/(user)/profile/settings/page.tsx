@@ -144,31 +144,47 @@ export default function SettingsPage() {
                     <h2 className="text-xs font-black text-text-secondary uppercase tracking-[0.2em]">{t('dashboard')}</h2>
                 </div>
                 
-                <div className="flex items-center justify-between p-4">
+                <div className="flex items-center justify-between p-4 group">
                     <div className="flex items-center gap-3">
-                        <Moon size={18} className="text-text-secondary" />
-                        <span className="text-sm font-medium text-text-primary">{t('dark_mode')}</span>
+                        <div className={`p-2 rounded-xl transition-all duration-500 scale-100 group-hover:scale-110 ${theme === 'dark' ? 'bg-primary/20 text-primary-light' : 'bg-amber-100 text-amber-600'}`}>
+                            {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-bold text-text-primary">{t('dark_mode')}</span>
+                            <span className="text-[10px] text-text-secondary uppercase tracking-widest font-black opacity-40">
+                                {theme === 'dark' ? 'Night Terminal' : 'Daylight Mode'}
+                            </span>
+                        </div>
                     </div>
                     <button
                         onClick={toggleTheme}
-                        className={`w-14 h-7 rounded-full transition-all duration-300 relative ${theme === 'dark' ? 'bg-primary shadow-[0_0_20px_rgba(157,80,187,0.3)]' : 'bg-slate-200'}`}
+                        className={`w-14 h-7 rounded-full transition-all duration-500 relative ${theme === 'dark' ? 'bg-primary shadow-[0_0_20px_rgba(157,80,187,0.4)]' : 'bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.4)]'}`}
                     >
-                        <div className={`absolute top-1 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-500 ${theme === 'dark' ? 'translate-x-8 bg-white rotate-0' : 'translate-x-1 bg-slate-600 rotate-[360deg]'}`}>
-                            {theme === 'dark' ? <Sun size={10} className="text-primary" /> : <Moon size={10} className="text-white" />}
+                        <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-xl transition-all duration-500 flex items-center justify-center ${theme === 'dark' ? 'translate-x-[2.1rem]' : 'translate-x-1'}`}>
+                            {theme === 'dark' ? <Moon size={10} className="text-primary" /> : <Sun size={10} className="text-amber-600" />}
                         </div>
                     </button>
                 </div>
 
-                <div className="flex items-center justify-between p-4">
+                <div className="flex items-center justify-between p-4 group">
                     <div className="flex items-center gap-3">
-                        <Bell size={18} className="text-text-secondary" />
-                        <span className="text-sm font-medium text-text-primary">{t('notifications')}</span>
+                        <div className={`p-2 rounded-xl transition-colors ${notifications ? 'bg-success/20 text-success' : 'bg-black/10 dark:bg-white/10 text-text-secondary'}`}>
+                            <Bell size={18} className={notifications ? 'animate-float' : ''} />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-bold text-text-primary">{t('notifications')}</span>
+                            <span className="text-[10px] text-text-secondary uppercase tracking-widest font-black opacity-40">
+                                {notifications ? 'Push Enabled' : 'Muted'}
+                            </span>
+                        </div>
                     </div>
                     <button
                         onClick={() => handleUpdateProfileSetting('notifications_enabled', !notifications)}
-                        className={`w-12 h-6 rounded-full transition-all duration-300 relative ${notifications ? 'bg-success shadow-[0_0_15px_rgba(0,255,136,0.3)]' : 'bg-text-secondary/20'}`}
+                        className={`w-14 h-7 rounded-full transition-all duration-500 relative ${notifications ? 'bg-success shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'bg-slate-200 dark:bg-white/10'}`}
                     >
-                        <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${notifications ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                        <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-xl transition-all duration-500 flex items-center justify-center ${notifications ? 'translate-x-[2.1rem]' : 'translate-x-1 grayscale'}`}>
+                            <div className={`w-1.5 h-1.5 rounded-full transition-all ${notifications ? 'bg-success animate-pulse' : 'bg-slate-400'}`} />
+                        </div>
                     </button>
                 </div>
 

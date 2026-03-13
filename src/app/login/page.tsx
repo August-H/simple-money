@@ -50,10 +50,21 @@ export default function LoginPage() {
     // Auto-logout when accessing the login page
     useEffect(() => {
         const cleanupSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                await supabase.auth.signOut();
-                router.refresh();
+            try {
+                // Use a short timeout for cleanup to prevent hanging the login page
+                const sessionPromise = supabase.auth.getSession();
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('TIMEOUT')), 3000)
+                );
+
+                const res = await Promise.race([sessionPromise, timeoutPromise]) as any;
+                if (res?.data?.session) {
+                    await supabase.auth.signOut();
+                    router.refresh();
+                }
+            } catch (err) {
+                // Ignore timeout or other errors during auto-cleanup
+                console.warn('Login session cleanup bypassed/timed out');
             }
         };
         cleanupSession();
@@ -104,15 +115,23 @@ export default function LoginPage() {
             if (signInError) throw signInError;
 
             if (signInData?.user) {
-                const { data: profileData } = await supabase
+                console.log('--- LOGIN SUCCESS ---');
+                console.log('Auth User ID:', signInData.user.id);
+                console.log('Auth User Email:', signInData.user.email);
+                console.log('--- FETCHING PROFILE ---');
+                
+                const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
-                    .select('role')
+                    .select('id, role')
                     .eq('id', signInData.user.id)
                     .maybeSingle();
 
+                console.log('Profile lookup result:', { profileData, profileError });
+
                 if (!profileData) {
                     await supabase.auth.signOut();
-                    throw new Error('This account has been deactivated or does not exist.');
+                    const errMsg = profileError ? `DB Error: ${profileError.message}` : `No profile found for ID: ${signInData.user.id.substring(0,8)}...`;
+                    throw new Error(`Account verification failed. ${errMsg}`);
                 }
 
                 const isAdmin = profileData?.role === 'admin';

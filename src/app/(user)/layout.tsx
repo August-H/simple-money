@@ -2,13 +2,12 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
 import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
 import Sidebar from '@/components/Sidebar';
 import Footer from '@/components/Footer';
 import ActivityFeed from '@/components/ActivityFeed';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import AnimatePage from '@/components/AnimatePage';
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
@@ -16,12 +15,20 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     const router = useRouter();
     const pathname = usePathname();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const mainRef = useRef<HTMLElement>(null); // Declare useRef for the main container
 
     useEffect(() => {
         if (!loading && !user) {
             router.replace('/login');
         }
     }, [user, loading, router]);
+
+    // Effect to reset scroll position on pathname change
+    useEffect(() => {
+        if (mainRef.current) {
+            mainRef.current.scrollTop = 0;
+        }
+    }, [pathname]);
 
     if (loading) {
         return (
@@ -40,16 +47,14 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
                 {/* Desktop Sidebar */}
                 <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-                <div className="flex-1 flex flex-col md:pl-72 min-w-0 h-full relative">
-                    <div className="absolute top-0 left-0 right-0 z-40">
-                        <Header onMenuClick={() => setSidebarOpen(true)} />
-                    </div>
-                    <main className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pb-32 px-4 md:px-8 w-full relative z-10 pt-16 md:pt-20">
-                        <div className="max-w-7xl mx-auto relative">
-                                <AnimatePage key={pathname}>
-                                    {children}
-                                    <Footer />
-                                </AnimatePage>
+                <div className="flex-1 md:pl-72 h-screen flex flex-col relative bg-transparent overflow-hidden">
+                    <Header onMenuClick={() => setSidebarOpen(true)} />
+                    <main id="main-content" ref={mainRef} className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar relative z-10 pb-20 px-4 md:px-8">
+                        <div className="max-w-7xl mx-auto relative pt-4 md:pt-6">
+                            <AnimatePage key={pathname}>
+                                {children}
+                                <Footer />
+                            </AnimatePage>
                         </div>
                     </main>
                 </div>

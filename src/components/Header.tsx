@@ -231,7 +231,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                                 <div className="p-4 border-b border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/[0.02]">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full border border-black/10 dark:border-white/10 bg-surface flex items-center justify-center text-text-primary dark:text-white font-black">
-                                            {profile?.username?.[0].toUpperCase() || 'U'}
+                                            {profile?.username?.charAt(0).toUpperCase() || 'U'}
                                         </div>
                                         <div>
                                             <p className="text-sm font-bold text-text-primary dark:text-white">{profile?.username || 'User'}</p>

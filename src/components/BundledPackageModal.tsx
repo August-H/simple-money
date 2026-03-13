@@ -56,7 +56,7 @@ export default function BundledPackageModal({
                                 <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em] mb-3 block">
                                     Combined Sequence Activation
                                 </span>
-                                <h3 className="text-3xl font-black text-white mb-4 italic tracking-tight">Super Optimization!</h3>
+                                <h3 className="text-3xl font-black text-white mb-4 italic tracking-tight">Priority Task Bundle!</h3>
                                 <p className="text-sm text-text-secondary leading-relaxed opacity-70 px-4">
                                     {bundle.description || "You've successfully triggered a high-yield bundle sequence. These are priority matching cycles for institutional merchants."}
                                 </p>

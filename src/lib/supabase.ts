@@ -14,6 +14,8 @@ export const supabase: SupabaseClient = globalForSupabase.supabase || (() => {
         persistSession: true,
         detectSessionInUrl: true,
         storageKey: 'sb-auth-token-money',
+        // bypass the often-buggy Navigator LockManager
+        lock: (name: string, acquireTimeout: number, fn: () => Promise<any>) => fn(),
     };
 
     const client = createClient(
@@ -22,9 +24,7 @@ export const supabase: SupabaseClient = globalForSupabase.supabase || (() => {
         { auth: authOptions }
     );
 
-    if (process.env.NODE_ENV !== 'production') {
-        globalForSupabase.supabase = client;
-    }
+    globalForSupabase.supabase = client;
 
     return client;
 })();

@@ -12,7 +12,7 @@ export default function AnimatePage({ children }: { children: React.ReactNode })
                 duration: 0.45,
                 ease: [0.22, 1, 0.36, 1]
             }}
-            className="w-full h-full"
+            className="w-full"
         >
             {children}
         </motion.div>

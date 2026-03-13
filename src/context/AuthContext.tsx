@@ -61,7 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         const initialize = async () => {
             try {
+                // Initialize session - lock bypass in supabase.ts prevents hangs here
                 const { data: { session } } = await supabase.auth.getSession();
+                
                 if (!mounted) return;
 
                 if (session?.user) {
@@ -71,11 +73,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     setUser(null);
                     setProfile(null);
                 }
-            } catch (err) {
-                console.error('Auth init error:', err);
+            } catch (err: any) {
+                console.error('Auth initialization error:', err);
+                
                 if (mounted) {
-                    setUser(null);
-                    setProfile(null);
+                    // Fallback to direct user check if session lookup failed
+                    const { data: { user: fallbackUser } } = await supabase.auth.getUser();
+                    if (fallbackUser) {
+                        setUser(fallbackUser);
+                        await fetchProfile(fallbackUser.id);
+                    } else {
+                        setUser(null);
+                        setProfile(null);
+                    }
                 }
             } finally {
                 if (mounted) setLoading(false);

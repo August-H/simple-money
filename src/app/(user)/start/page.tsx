@@ -55,6 +55,7 @@ export default function StartPage() {
     const [showMinBalanceModal, setShowMinBalanceModal] = useState(false);
     const [showBundleSuccessToast, setShowBundleSuccessToast] = useState(false);
     const [hasPendingTask, setHasPendingTask] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Simplified scroll management
     useEffect(() => {
@@ -132,7 +133,7 @@ export default function StartPage() {
                     }
                 }
 
-                // 2. Items logic + Preloading
+                // 2. Items logic + Preloading (Enhanced Visual Uniqueness)
                 const lastResetDate = profile.last_reset_at ? new Date(profile.last_reset_at) : new Date(Date.now() - 24 * 60 * 60 * 1000);
                 const recentIds = new Set(
                     ((pastTasksRes.data || []) as any[])
@@ -141,17 +142,26 @@ export default function StartPage() {
                 );
                 setRecentlyUsedIdsState(recentIds);
 
-                let availableItems = (itemsRes.data || []).filter(item => !recentIds.has(item.id));
+                const allItemsFromDb = itemsRes.data || [];
+                const poolByImage = new Map();
+                // Filter by image uniqueness first to avoid visual clutter
+                allItemsFromDb.forEach(item => {
+                    if (!poolByImage.has(item.image_url) && !recentIds.has(item.id)) {
+                        poolByImage.set(item.image_url, item);
+                    }
+                });
 
-                if (availableItems.length === 0 && itemsRes.data && itemsRes.data.length > 0) {
-                    availableItems = itemsRes.data;
+                let availableItems = Array.from(poolByImage.values());
+
+                if (availableItems.length < 24 && allItemsFromDb.length > 0) {
+                    availableItems = allItemsFromDb; // Fallback if too many filtered
                 } else if (availableItems.length === 0) {
                     availableItems = Array.from({ length: 24 }).map((_, i) => ({
                         id: 0,
                         title: i % 2 === 0 ? 'Premium electronics hub' : 'Luxury timepiece collection',
                         image_url: `https://picsum.photos/seed/prod-${i}/400/400`,
                         category: 'premium',
-                        description: 'High-quality matched asset for optimization',
+                        description: 'High-quality matched asset for task processing',
                         is_active: true,
                         created_at: new Date().toISOString(),
                         level_id: profile.level_id
@@ -161,7 +171,7 @@ export default function StartPage() {
                 const shuffled = [...availableItems].sort(() => 0.5 - Math.random());
                 const selectedItems = shuffled.slice(0, 24);
                 setItems(selectedItems);
-                // Keep the rest of the pool for replacements
+                
                 if (itemsRes.data) {
                     (window as any)._allPoolItems = itemsRes.data;
                 }
@@ -378,30 +388,33 @@ export default function StartPage() {
                 setProfitAdded(earnedAmount > 0 ? earnedAmount : 0);
                 setTimeout(() => setProfitAdded(null), 4000);
 
-                // REPLACE COMPLETED ITEM IN POOL
-                const pool = (window as any)._allPoolItems || [];
-                // Update local tracking
-                const updatedRecent = new Set(recentlyUsedIdsState);
-                updatedRecent.add(item.id);
-                setRecentlyUsedIdsState(updatedRecent);
+                // NATURAL RE-OPTIMIZATION TRANSITION
+                setIsRefreshing(true);
+                    setMatchingStatus("Refreshing tasks...");
+                
+                setTimeout(() => {
+                    const pool = (window as any)._allPoolItems || [];
+                    const updatedRecent = new Set(recentlyUsedIdsState);
+                    updatedRecent.add(item.id);
+                    setRecentlyUsedIdsState(updatedRecent);
 
-                if (pool.length > 0) {
-                    const currentItems = [...items];
-                    const usedInGridIds = new Set(currentItems.map(i => i.id));
+                    if (pool.length > 0) {
+                        const poolByImage = new Map();
+                        pool.forEach((p: any) => {
+                            if (!poolByImage.has(p.image_url) && !updatedRecent.has(p.id)) {
+                                poolByImage.set(p.image_url, p);
+                            }
+                        });
 
-                    const unusedInPool = pool.filter((p: any) =>
-                        !usedInGridIds.has(p.id) &&
-                        !updatedRecent.has(p.id)
-                    );
-                    if (unusedInPool.length > 0) {
-                        const newItem = unusedInPool[Math.floor(Math.random() * unusedInPool.length)];
-                        const itemIdx = currentItems.findIndex(i => i.id === item.id);
-                        if (itemIdx !== -1) {
-                            currentItems[itemIdx] = newItem;
-                            setItems(currentItems);
-                        }
+                        let freshPool = Array.from(poolByImage.values());
+                        if (freshPool.length < 24) freshPool = pool; 
+
+                        const reshuffled = [...freshPool].sort(() => 0.5 - Math.random()).slice(0, 24);
+                        setItems(reshuffled);
                     }
-                }
+                    setIsRefreshing(false);
+                    setMatchingStatus(t('ready_to_match'));
+                }, 800);
 
                 if (tasksInCurrentSet + 1 >= tasksPerSet) {
                     setModalSeen(false);
@@ -410,7 +423,7 @@ export default function StartPage() {
             }
             await refreshProfile();
         } catch (err: any) {
-            alert(`Optimization Failure: ${err?.message || 'Error'}`);
+            alert(`Task Failure: ${err?.message || 'Error'}`);
         } finally {
             setIsSubmitting(false);
         }
@@ -439,35 +452,65 @@ export default function StartPage() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto px-4 pb-12 relative">
-            <div className="absolute top-1/4 -left-20 w-80 h-80 glass-prism rounded-full opacity-20 pointer-events-none blur-xl animate-pulse-glow" />
-            <div className="absolute bottom-1/4 -right-20 w-96 h-96 glass-prism rounded-full opacity-20 pointer-events-none blur-2xl animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
-
-            {/* Banner / Profile Card */}
-            <div className="glass-card-strong p-0 mb-6 md:mb-10 relative overflow-hidden group border border-white/20 rounded-[32px] md:rounded-[40px] shadow-2xl z-20">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 z-0 bg-surface/80">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(157,80,187,0.1),transparent_70%)]" />
+        <div className="relative space-y-8">
+            <div className="absolute top-0 -left-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+            
+            {/* Banner / Profile Card - LIVE EDITION */}
+            <div className="glass-card-strong p-0 mb-6 md:mb-10 relative overflow-hidden group border border-white/20 rounded-[32px] md:rounded-[40px] shadow-2xl z-20 animate-scan">
+                {/* Background Pattern - Animated Mesh */}
+                <div className="absolute inset-0 z-0 animate-mesh bg-[radial-gradient(circle_at_50%_50%,rgba(157,80,187,0.15),transparent_70%),radial-gradient(circle_at_0%_0%,rgba(6,182,212,0.1),transparent_50%)] bg-surface/80">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 mix-blend-overlay" />
                 </div>
 
-                {/* Profile Header Block */}
-                <div className="p-6 md:p-10 pb-4 md:pb-6 border-b border-white/10 relative z-20">
-                    <div className="flex items-center gap-4 md:gap-6">
-                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-[22px] md:rounded-[28px] bg-gradient-to-br from-primary via-accent to-primary p-[2px] shadow-xl shadow-primary/30 shrink-0">
-                            <div className="w-full h-full rounded-[20px] md:rounded-[26px] bg-slate-900 flex items-center justify-center border border-white/20 overflow-hidden">
-                                <span className="text-2xl md:text-4xl font-black text-white">{profile?.username?.[0].toUpperCase() || 'U'}</span>
+                {/* Premium Welcome Header Block */}
+                <div className="p-8 md:p-12 pb-6 md:pb-8 border-b border-white/10 relative z-20">
+                    <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-8">
+                        {/* Avatar Cell */}
+                        <div className="relative group/avatar">
+                            <div className="absolute -inset-1 bg-gradient-to-tr from-primary via-accent to-primary-light rounded-[30px] md:rounded-[36px] blur-sm opacity-40 group-hover/avatar:opacity-100 transition duration-1000 group-hover/avatar:duration-200"></div>
+                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-[26px] md:rounded-[32px] bg-gradient-to-br from-primary via-accent to-primary p-[2.5px] shadow-2xl relative shrink-0">
+                                <div className="w-full h-full rounded-[24px] md:rounded-[30px] bg-slate-900 flex items-center justify-center border border-white/10 overflow-hidden relative">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent pointer-events-none" />
+                                    <span className="text-3xl md:text-5xl font-black text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+                                        {profile?.username?.charAt(0).toUpperCase() || 'U'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-2xl bg-surface border-4 border-slate-900 flex items-center justify-center shadow-lg">
+                                <div className="w-3 h-3 rounded-full bg-success animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                             </div>
                         </div>
-                        <div className="flex flex-col">
-                            <h1 className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase leading-none">
-                                {t('welcome_back')}, <span className="text-primary-light">{profile?.username || 'User'}</span>
-                            </h1>
-                            <div className="flex items-center gap-3 mt-2">
-                                <span className="text-[10px] font-black text-white/60 uppercase tracking-[0.3em]">
+
+                        {/* Name & Title */}
+                        <div className="flex flex-col flex-1">
+                            <div className="flex flex-wrap items-center gap-3 mb-1">
+                                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black text-text-secondary uppercase tracking-[0.25em]">
                                     {t('optimization_hub_active')}
                                 </span>
-                                <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                                <span className="text-[10px] font-black text-success uppercase tracking-widest">Level {profile?.level_id || 1}</span>
+                                <div className="h-1 w-1 rounded-full bg-white/20" />
+                                <span className="text-[9px] font-black text-primary-light uppercase tracking-[0.25em]">
+                                    Verified Terminal 042
+                                </span>
+                            </div>
+                            
+                            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-3">
+                                {t('welcome_back')}, <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-primary-light to-white/80">{profile?.username || 'User'}</span>
+                            </h1>
+
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-primary/10 border border-primary/20 backdrop-blur-md">
+                                    <Trophy size={14} className="text-primary-light" />
+                                    <span className="text-[10px] md:text-[11px] font-black text-white uppercase tracking-widest">
+                                        Level {profile?.level_id || 1} Elite
+                                    </span>
+                                </div>
+                                <div className="h-4 w-[1px] bg-white/10 hidden sm:block" />
+                                <div className="hidden sm:flex items-center gap-2 opacity-50">
+                                    <Activity size={12} className="text-text-secondary" />
+                                    <span className="text-[9px] font-bold text-text-secondary uppercase tracking-widest italic">
+                                        Network Latency: 14ms
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -477,26 +520,34 @@ export default function StartPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-5 gap-[1px] bg-white/10 relative z-20">
 
                     {/* Progress */}
-                    <div className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-surface/80 transition-colors">
+                    <div className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-surface/80 transition-all hover:-translate-y-1">
                         <div className="flex items-center justify-between mb-1">
                             <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">{t('set_progress')}</span>
-                            <Activity size={12} className="text-primary-light" />
+                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center animate-pulse">
+                                <Activity size={12} className="text-primary-light" />
+                            </div>
                         </div>
-                        <h2 className="text-2xl font-black text-white tracking-tight">SET {currentSet}/{setsPerDay}</h2>
+                        <h2 className="text-2xl font-black text-white tracking-tight drop-shadow-sm">SET {currentSet}/{setsPerDay}</h2>
                         <div className="mt-4 flex items-center justify-between">
                             <span className="text-[9px] font-mono text-white/40">({tasksInCurrentSet}/{totalTasks}) {t('completed')}</span>
-                            <div className="w-1 h-1 rounded-full bg-primary-light animate-pulse" />
+                            <div className="flex gap-0.5">
+                                <div className="w-1 h-1 rounded-full bg-primary-light animate-pulse" />
+                                <div className="w-1 h-1 rounded-full bg-primary-light/40" />
+                            </div>
                         </div>
                     </div>
 
                     {/* Recharge */}
-                    <Link href="/deposit" className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-success/5 transition-colors border-l border-white/10">
-                        <div className="flex items-center justify-between mb-1">
+                    <Link href="/deposit" className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-success/10 transition-all hover:-translate-y-1 border-l border-white/10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-success/5 rounded-full -mr-8 -mt-8 animate-pulse" />
+                        <div className="flex items-center justify-between mb-1 relative z-10">
                             <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">{t('recharge')}</span>
-                            <Zap size={12} className="text-success animate-pulse" />
+                            <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center animate-float">
+                                <Zap size={14} className="text-success fill-success/40" />
+                            </div>
                         </div>
-                        <p className="text-2xl font-black text-success-light tracking-tight">{format(profile?.wallet_balance || 0)}</p>
-                        <div className="mt-4 flex items-center justify-between">
+                        <p className="text-2xl font-black text-success tracking-tight relative z-10 drop-shadow-md">{format(profile?.wallet_balance || 0)}</p>
+                        <div className="mt-4 flex items-center justify-between relative z-10">
                             <span className="text-[8px] font-black text-success uppercase tracking-widest">{t('recharge_now')}</span>
                             <ArrowRight size={12} className="text-success group-hover:translate-x-1 transition-transform" />
                         </div>
@@ -516,13 +567,17 @@ export default function StartPage() {
                     </Link>
 
                     {/* Daily Profits */}
-                    <div className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-accent/5 transition-colors border-l border-white/10">
-                        <div className="flex items-center justify-between mb-1">
+                    <div className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-accent/10 transition-all hover:-translate-y-1 border-l border-white/10 relative overflow-hidden">
+                        <div className="absolute bottom-0 right-0 w-20 h-20 bg-accent/5 rounded-full -br-10 -bb-10 animate-mesh" />
+                        <div className="flex items-center justify-between mb-1 relative z-10">
                             <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">{t('daily_profits')}</span>
-                            <TrendingUp size={12} className="text-accent-light" />
+                            <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center animate-float" style={{ animationDelay: '1s' }}>
+                                <TrendingUp size={14} className="text-accent-light" />
+                            </div>
                         </div>
-                        <p className="text-2xl font-black text-accent-light tracking-tight">{format(profile?.profit || 0)}</p>
-                        <div className="mt-4 flex items-center gap-1.5">
+                        <p className="text-2xl font-black text-accent-light tracking-tight relative z-10 drop-shadow-md">{format(profile?.profit || 0)}</p>
+                        <div className="mt-4 flex items-center gap-1.5 relative z-10">
+                            <div className="w-1.5 h-1.5 rounded-full bg-accent/50 animate-pulse" />
                             <span className="text-[8px] font-black text-accent uppercase tracking-widest">{t('secured_rebate')}</span>
                         </div>
                     </div>
@@ -563,6 +618,8 @@ export default function StartPage() {
 
                 <div className="w-full max-w-2xl mx-auto space-y-12 z-10 px-4 relative">
                     <div className="grid grid-cols-5 gap-2 md:gap-4 relative">
+
+
                         {Array.from({ length: 25 }).map((_, idx) => {
                             if (idx === 12) {
                                 return (
@@ -572,29 +629,61 @@ export default function StartPage() {
                                             onClick={handleStart}
                                             disabled={isSpinning}
                                             className={`relative w-full h-full rounded-full flex flex-col items-center justify-center p-2 transition-all duration-300 overflow-hidden !cursor-pointer
-                                                ${isSpinning ? 'scale-95 shadow-none ring-4 ring-primary/20' : 'hover:scale-105 active:scale-95 shadow-[0_10px_30px_rgba(157,80,187,0.3)]'}
-                                                ${(isLocked || (profile?.wallet_balance || 0) < 65 || profile?.pending_bundle) ? 'grayscale opacity-40 !cursor-not-allowed' : 'bg-slate-900 border-2 border-primary/30'}
+                                                ${isSpinning ? 'scale-95 shadow-none ring-4 ring-primary/20' : 'hover:scale-105 active:scale-95 shadow-[0_10px_40px_rgba(157,80,187,0.4)]'}
+                                                ${(isLocked || (profile?.wallet_balance || 0) < 65 || profile?.pending_bundle) 
+                                                    ? 'grayscale opacity-40 !cursor-not-allowed bg-slate-900/50' 
+                                                    : 'glass-water border-0'
+                                                }
                                             `}
                                         >
                                             <div className="relative z-20 flex flex-col items-center text-center">
-                                                <h3 className="text-[10px] md:text-sm font-black text-white uppercase tracking-wider leading-tight">
+                                                <h3 className="text-sm md:text-base font-black text-white uppercase tracking-[0.2em] drop-shadow-lg leading-tight">
                                                     {hasPendingTask ? "SUBMIT" : (isLocked ? t('status') : t('start'))}
                                                 </h3>
-                                                {!isSpinning && !isLocked && !hasPendingTask && <Pointer size={14} className="text-primary-light animate-bounce mt-1" />}
-                                                {isSpinning && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mt-1" />}
+                                                {!isSpinning && !isLocked && !hasPendingTask && (
+                                                    <div className="mt-1.5 flex flex-col items-center">
+                                                        <Pointer size={14} className="text-white animate-bounce" />
+                                                        <div className="w-8 h-1 bg-white/30 rounded-full blur-[2px] mt-1 animate-pulse" />
+                                                    </div>
+                                                )}
+                                                {isSpinning && <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mt-2" />}
                                             </div>
+                                            
+                                            {/* Extra inner glow for the water effect */}
+                                            {!(isLocked || (profile?.wallet_balance || 0) < 65 || profile?.pending_bundle) && (
+                                                <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent pointer-events-none" />
+                                            )}
                                         </button>
                                     </div>
                                 );
                             }
 
                             const itemIdx = idx > 12 ? idx - 1 : idx;
+                            const isCurrentHighlighted = highlightedIndex === itemIdx;
+                            
                             return (
-                                <div key={idx} className={`aspect-square bg-slate-900/40 p-1 border border-white/5 overflow-hidden transition-all duration-500 rounded-[12px] md:rounded-[20px] ${isSpinning && highlightedIndex === itemIdx ? 'ring-2 ring-primary scale-110 shadow-[0_0_20px_var(--color-primary)] opacity-100 z-10' : 'opacity-80'}`}>
+                                <div 
+                                    key={idx} 
+                                    className={`
+                                        aspect-square bg-slate-900/40 p-1 border border-white/5 overflow-hidden transition-all duration-700 rounded-[12px] md:rounded-[24px] relative
+                                        ${isSpinning && isCurrentHighlighted ? 'ring-2 ring-primary scale-110 shadow-[0_0_25px_rgba(157,80,187,0.6)] opacity-100 z-10 bg-slate-800' : 'opacity-80'}
+                                        ${isRefreshing ? 'scale-90 opacity-0' : 'scale-100 opacity-80'}
+                                        group/item hover:scale-[1.03] hover:opacity-100 transition-all cursor-pointer shadow-lg
+                                    `}
+                                    style={{ 
+                                        transitionDelay: isRefreshing ? `${(idx % 6) * 30 + Math.floor(idx / 6) * 30}ms` : '0ms',
+                                        transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                    }}
+                                >
                                     {items[itemIdx] ? (
-                                        <img src={items[itemIdx].image_url} className="w-full h-full object-cover rounded-[8px] md:rounded-[16px]" alt="" />
+                                        <div className="w-full h-full relative">
+                                            <img src={items[itemIdx].image_url} className="w-full h-full object-cover rounded-[8px] md:rounded-[18px]" alt="" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity rounded-[8px] md:rounded-[18px]" />
+                                            {/* Subtle reflection overlay */}
+                                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-20 pointer-events-none" />
+                                        </div>
                                     ) : (
-                                        <div className="w-full h-full bg-white/5 animate-pulse rounded-[8px] md:rounded-[16px]" />
+                                        <div className="w-full h-full bg-white/5 animate-pulse rounded-[8px] md:rounded-[18px]" />
                                     )}
                                 </div>
                             );
@@ -645,71 +734,85 @@ export default function StartPage() {
                                         className="glass-card-strong max-w-sm w-full p-10 animate-scale-in border-primary/30 rounded-[40px] relative shadow-[0_50px_160px_rgba(157,80,187,0.3)] cursor-default md:fixed md:left-[59%] md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 overflow-hidden"
                                         onClick={e => e.stopPropagation()}
                                     >
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-light to-transparent" />
+                                        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-primary-light to-transparent" />
 
-                                        <div className="relative mb-8">
+                                        <div className="relative mb-10 scale-110">
                                             <div className="w-24 h-24 rounded-[32px] bg-gradient-to-br from-primary via-accent to-primary-light flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(157,80,187,0.4)] animate-bounce-slow">
                                                 <Trophy size={48} className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
                                             </div>
-                                            <div className="absolute -top-2 -right-2">
-                                                <Sparkles className="text-warning animate-pulse" size={24} />
+                                            <div className="absolute -top-4 -right-4">
+                                                <Sparkles className="text-warning animate-pulse" size={28} />
                                             </div>
-                                            <div className="absolute -bottom-2 -left-2">
-                                                <Star className="text-warning animate-spin-slow" size={24} />
+                                            <div className="absolute -bottom-4 -left-4">
+                                                <Star className="text-amber-400 animate-spin-slow" size={28} />
                                             </div>
                                         </div>
 
-                                        <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-2 leading-tight">
-                                            {isAllSetsDone ? "Day Complete" : t('task_result')}
+                                        <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-2 leading-tight drop-shadow-lg">
+                                            {isAllSetsDone ? "Day Complete" : "Set Finalized"}
                                         </h2>
 
-                                        <p className="text-[10px] font-black text-primary-light uppercase tracking-[0.4em] mb-8 opacity-80">
-                                            {isAllSetsDone ? "Unmatched Efficiency" : `Set ${currentSet} Finalized`}
+                                        <p className="text-[11px] font-black text-primary-light uppercase tracking-[0.4em] mb-10 opacity-80 flex items-center justify-center gap-2">
+                                            <Zap size={10} className="fill-primary-light" />
+                                            {isAllSetsDone ? "Maximum Efficiency Reached" : `Sequence ${currentSet} / ${setsPerDay} Success`}
+                                            <Zap size={10} className="fill-primary-light" />
                                         </p>
 
-                                        <div className="space-y-4 mb-10 bg-white/5 rounded-3xl p-6 border border-white/5">
-                                            <div className="flex flex-col gap-1 items-center pb-4 border-b border-white/5">
-                                                <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40">Wallet Balance</span>
-                                                <span className="text-4xl font-black text-white tracking-tighter tabular-nums drop-shadow-lg">
+                                        <div className="space-y-4 mb-10 bg-black/40 rounded-3xl p-8 border border-white/5 shadow-inner">
+                                            <div className="flex flex-col gap-1 items-center pb-6 border-b border-white/5">
+                                                <span className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40">Wallet Balance</span>
+                                                <span className="text-5xl font-black text-white tracking-tighter tabular-nums drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                                                     {format(profile?.wallet_balance || 0)}
                                                 </span>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4 pt-2">
+                                            <div className="grid grid-cols-2 gap-6 pt-4">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-[8px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40 leading-none mb-2">Today's Profit</span>
-                                                    <span className="text-sm font-black text-success tabular-nums leading-none">+{format(profile?.profit || 0)}</span>
+                                                    <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40 leading-none mb-3">Today's Profit</span>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <TrendingUp size={12} className="text-success" />
+                                                        <span className="text-base font-black text-success tabular-nums leading-none">+{format(profile?.profit || 0)}</span>
+                                                    </div>
                                                 </div>
                                                 <div className="flex flex-col items-center border-l border-white/5">
-                                                    <span className="text-[8px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40 leading-none mb-2">Referral Rewards</span>
-                                                    <span className="text-sm font-black text-primary-light tabular-nums leading-none">+{format(profile?.referral_earned || 0)}</span>
+                                                    <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40 leading-none mb-3">Referral Earnings</span>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Sparkles size={12} className="text-primary-light" />
+                                                        <span className="text-base font-black text-primary-light tabular-nums leading-none">+{format(profile?.referral_earned || 0)}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <p className="text-[11px] font-bold text-text-secondary uppercase tracking-widest leading-relaxed mb-10 opacity-60">
+                                        <p className="text-[12px] font-bold text-text-secondary uppercase tracking-widest leading-relaxed mb-10 opacity-70 px-4">
                                             {isAllSetsDone
-                                                ? "You have successfully optimized all available data batches for today. Your performance has reached the maximum daily threshold."
-                                                : "High-yield optimization set is now ready for settlement. Please contact our support team to advance to the next data batch."}
+                                                ? "You have reached the maximum daily threshold for your current level. Data matching protocols for the next cycle will resume tomorrow."
+                                                : "High-yield data batch successfully cleared for settlement. Please synchronize with customer support to initialize the next sequence."}
                                         </p>
 
-                                        {!isAllSetsDone && (
-                                            <button
-                                                onClick={handleConfirmSettlement}
-                                                className="w-full py-5 rounded-[24px] bg-gradient-to-r from-primary to-accent text-white font-black uppercase tracking-widest text-[12px] shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 group"
-                                            >
-                                                <MessageCircle size={20} className="group-hover:rotate-12 transition-transform" />
-                                                Contact Customer Service
-                                            </button>
-                                        )}
-
-                                        {isAllSetsDone && (
-                                            <button
-                                                onClick={() => setShowCompletionModal(false)}
-                                                className="w-full py-5 rounded-[24px] bg-white/10 text-white font-black uppercase tracking-widest text-[12px] border border-white/10 hover:bg-white/20 transition-all active:scale-95"
-                                            >
-                                                Return Home
-                                            </button>
-                                        )}
+                                        <div className="flex flex-col gap-4">
+                                            {!isAllSetsDone ? (
+                                                <button
+                                                    onClick={handleConfirmSettlement}
+                                                    className="relative w-full py-6 rounded-[28px] overflow-hidden group transition-all duration-300"
+                                                >
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary animate-shimmer" />
+                                                    <div className="relative z-10 flex items-center justify-center gap-3 text-white font-black uppercase tracking-[0.2em] text-[13px]">
+                                                        <MessageCircle size={22} className="group-hover:rotate-12 transition-transform" />
+                                                        Initialize Settlement
+                                                    </div>
+                                                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                </button>
+                                            ) : (
+                                                <Link
+                                                    href="/home"
+                                                    className="w-full py-6 rounded-[28px] bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.2em] text-[13px] hover:bg-white/10 transition-all flex items-center justify-center gap-3"
+                                                >
+                                                    Return to Terminal
+                                                </Link>
+                                            )}
+                                            
+                                            <p className="text-[9px] font-black text-text-secondary/30 uppercase tracking-[0.4em]">SYSTEM PROTOCOL V4.2 ACTIVE</p>
+                                        </div>
                                     </div>
                                 </div>
                             </Portal>

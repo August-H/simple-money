@@ -6,18 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, DollarSign, ArrowRight, Loader2, Users, Shield, CheckCircle, ChevronDown, Mail, KeyRound, User } from 'lucide-react';
 
-const COUNTRY_CODES = [
-    { code: '+1', flag: '🇺🇸', name: 'US' },
-    { code: '+44', flag: '🇬🇧', name: 'UK' },
-    { code: '+233', flag: '🇬🇭', name: 'GH' },
-    { code: '+234', flag: '🇳🇬', name: 'NG' },
-    { code: '+60', flag: '🇲🇾', name: 'MY' },
-    { code: '+63', flag: '🇵🇭', name: 'PH' },
-    { code: '+66', flag: '🇹🇭', name: 'TH' },
-    { code: '+62', flag: '🇮🇩', name: 'ID' },
-    { code: '+84', flag: '🇻🇳', name: 'VN' },
-    { code: '+971', flag: '🇦🇪', name: 'AE' },
-];
+import { COUNTRIES, Country } from '@/lib/countries';
 
 import AnimatePage from '@/components/AnimatePage';
 
@@ -41,8 +30,14 @@ function OldSignupPage() {
         acceptTerms: true,
     });
     const [signupMode, setSignupMode] = useState<'password' | 'magic'>('password');
-    const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0]);
+    const [countryCode, setCountryCode] = useState(COUNTRIES[0]);
     const [showCountryCodes, setShowCountryCodes] = useState(false);
+    const [countrySearch, setCountrySearch] = useState('');
+
+    const filteredCountries = COUNTRIES.filter(c => 
+        c.name.toLowerCase().includes(countrySearch.toLowerCase()) || 
+        c.dial_code.includes(countrySearch)
+    );
     const [magicSent, setMagicSent] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
@@ -129,7 +124,7 @@ function OldSignupPage() {
             }
 
             const rawPhone = formData.phone.replace(/[\s\-().]/g, '');
-            const fullPhone = (signupMode === 'magic' || formData.phone.startsWith('+')) ? formData.phone : `${countryCode.code}${rawPhone}`;
+            const fullPhone = (signupMode === 'magic' || formData.phone.startsWith('+')) ? formData.phone : `${countryCode.dial_code}${rawPhone}`;
 
             let signUpOptions: any = {
                 data: {
@@ -304,19 +299,42 @@ function OldSignupPage() {
                                                             <ChevronDown size={14} className="text-text-secondary" />
                                                         </button>
                                                         {showCountryCodes && (
-                                                            <div className="absolute top-full left-0 mt-1 w-48 bg-surface border border-white/10 rounded-xl shadow-2xl z-50 overflow-y-auto max-h-56">
-                                                                {COUNTRY_CODES.map((c) => (
-                                                                    <button
-                                                                        key={c.code}
-                                                                        type="button"
-                                                                        onClick={() => { setCountryCode(c); setShowCountryCodes(false); }}
-                                                                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/5 text-sm text-text-primary transition-colors text-left"
-                                                                    >
-                                                                        <span>{c.flag}</span>
-                                                                        <span className="font-bold">{c.code}</span>
-                                                                        <span className="text-text-secondary text-xs">{c.name}</span>
-                                                                    </button>
-                                                                ))}
+                                                            <div className="absolute bottom-full left-0 mb-2 w-64 bg-slate-900 border border-white/10 rounded-[24px] shadow-2xl z-50 overflow-hidden animate-slide-up backdrop-blur-xl">
+                                                                <div className="p-3 border-b border-white/5">
+                                                                    <div className="relative">
+                                                                        <input 
+                                                                            type="text"
+                                                                            placeholder="Search or +Code"
+                                                                            value={countrySearch}
+                                                                            onChange={(e) => setCountrySearch(e.target.value)}
+                                                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white placeholder-white/30 outline-none focus:border-primary/50 transition-all"
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="overflow-y-auto max-h-56 custom-scrollbar">
+                                                                    {filteredCountries.length > 0 ? (
+                                                                        filteredCountries.map((c) => (
+                                                                            <button
+                                                                                key={c.code}
+                                                                                type="button"
+                                                                                onClick={() => { setCountryCode(c); setShowCountryCodes(false); setCountrySearch(''); }}
+                                                                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-sm text-text-primary transition-colors text-left"
+                                                                            >
+                                                                                <span className="text-lg">{c.flag}</span>
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="font-bold text-white text-xs">{c.dial_code}</span>
+                                                                                    <span className="text-white/40 text-[10px] uppercase font-black">{c.name}</span>
+                                                                                </div>
+                                                                                {countryCode.code === c.code && (
+                                                                                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(157,80,187,1)]" />
+                                                                                )}
+                                                                            </button>
+                                                                        ))
+                                                                    ) : (
+                                                                        <div className="p-4 text-center text-xs text-white/30 font-bold uppercase">No Match</div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>

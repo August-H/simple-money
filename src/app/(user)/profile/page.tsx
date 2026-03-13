@@ -21,7 +21,8 @@ import {
     Loader2,
     Image as ImageIcon,
     Gift,
-    ArrowRight
+    ArrowRight,
+    Calendar
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useRef } from 'react';
@@ -205,10 +206,12 @@ export default function ProfilePage() {
                         { icon: CheckCircle, label: t('task_history'), href: '/record' },
                         { icon: ArrowDownToLine, label: t('deposit_record'), href: '/record/deposit' },
                         { icon: ArrowUpFromLine, label: t('withdrawal_record'), href: '/record/withdraw' },
+                        { icon: Calendar, label: 'Salary Hub', href: '/salary' },
                     ].map((item, idx) => (
                         <Link key={idx} href={item.href} className="flex items-center justify-between p-5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors group">
                             <div className="flex items-center gap-4">
                                 <div className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 text-text-secondary group-hover:bg-white/10 group-hover:text-primary transition-colors">
+                                    {/* @ts-ignore */}
                                     <item.icon size={20} />
                                 </div>
                                 <span className="font-bold text-text-primary text-sm uppercase tracking-wide">{item.label}</span>
