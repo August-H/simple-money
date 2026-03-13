@@ -444,12 +444,10 @@ export default function StartPage() {
             <div className="absolute bottom-1/4 -right-20 w-96 h-96 glass-prism rounded-full opacity-20 pointer-events-none blur-2xl animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
 
             {/* Banner / Profile Card */}
-            <div className="glass-card p-0 mb-6 md:mb-10 relative overflow-hidden group border border-white/10 rounded-[32px] md:rounded-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-fade-in z-20">
-                <div className="absolute inset-0 z-0">
-                    <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-20 md:opacity-30">
-                        <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-glowing-particles-looping-background-28384-large.mp4" type="video/mp4" />
-                    </video>
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent z-10" />
+            <div className="glass-card-strong p-0 mb-6 md:mb-10 relative overflow-hidden group border border-white/20 rounded-[32px] md:rounded-[40px] shadow-2xl z-20">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 z-0 bg-surface/80">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(157,80,187,0.1),transparent_70%)]" />
                 </div>
 
                 {/* Profile Header Block */}
@@ -479,22 +477,22 @@ export default function StartPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-5 gap-[1px] bg-white/10 relative z-20">
                     
                     {/* Progress */}
-                    <div className="p-6 bg-black/40 backdrop-blur-md group hover:bg-black/60 transition-colors">
+                    <div className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-surface/80 transition-colors">
                         <div className="flex items-center justify-between mb-1">
-                            <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{t('set_progress')}</span>
+                            <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">{t('set_progress')}</span>
                             <Activity size={12} className="text-primary-light" />
                         </div>
                         <h2 className="text-2xl font-black text-white tracking-tight">SET {currentSet}/{setsPerDay}</h2>
                         <div className="mt-4 flex items-center justify-between">
-                             <span className="text-[9px] font-mono text-white/30">({tasksInCurrentSet}/{totalTasks}) {t('completed')}</span>
+                             <span className="text-[9px] font-mono text-white/40">({tasksInCurrentSet}/{totalTasks}) {t('completed')}</span>
                              <div className="w-1 h-1 rounded-full bg-primary-light animate-pulse" />
                         </div>
                     </div>
 
                     {/* Recharge */}
-                    <Link href="/deposit" className="p-6 bg-black/40 backdrop-blur-md group hover:bg-success/10 transition-colors border-l border-white/5">
+                    <Link href="/deposit" className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-success/5 transition-colors border-l border-white/10">
                         <div className="flex items-center justify-between mb-1">
-                            <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{t('recharge')}</span>
+                            <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">{t('recharge')}</span>
                             <Zap size={12} className="text-success animate-pulse" />
                         </div>
                         <p className="text-2xl font-black text-success-light tracking-tight">{format(profile?.wallet_balance || 0)}</p>
@@ -505,9 +503,9 @@ export default function StartPage() {
                     </Link>
 
                     {/* Withdraw */}
-                    <Link href="/withdraw" className="p-6 bg-black/40 backdrop-blur-md group hover:bg-primary/10 transition-colors border-l border-white/5">
+                    <Link href="/withdraw" className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-primary/5 transition-colors border-l border-white/10">
                         <div className="flex items-center justify-between mb-1">
-                            <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{t('withdraw')}</span>
+                            <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">{t('withdraw')}</span>
                             <Wallet size={12} className="text-primary-light" />
                         </div>
                         <p className="text-2xl font-black text-white tracking-tight">{t('withdraw')}</p>
@@ -518,9 +516,9 @@ export default function StartPage() {
                     </Link>
 
                     {/* Daily Profits */}
-                    <div className="p-6 bg-black/40 backdrop-blur-md group hover:bg-accent/10 transition-colors border-l border-white/5">
+                    <div className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-accent/5 transition-colors border-l border-white/10">
                         <div className="flex items-center justify-between mb-1">
-                            <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{t('daily_profits')}</span>
+                            <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">{t('daily_profits')}</span>
                             <TrendingUp size={12} className="text-accent-light" />
                         </div>
                         <p className="text-2xl font-black text-accent-light tracking-tight">{format(profile?.profit || 0)}</p>
@@ -530,9 +528,9 @@ export default function StartPage() {
                     </div>
 
                     {/* Frozen Asset */}
-                    <div className="p-6 bg-black/40 backdrop-blur-md group hover:bg-danger/10 transition-colors border-l border-white/5">
+                    <div className="p-6 bg-surface/60 backdrop-blur-md group hover:bg-danger/5 transition-colors border-l border-white/10">
                         <div className="flex items-center justify-between mb-1">
-                            <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{t('frozen_asset')}</span>
+                            <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">{t('frozen_asset')}</span>
                             <AlertTriangle size={12} className="text-danger-light" />
                         </div>
                         <p className="text-2xl font-black text-danger-light tracking-tight">{format(profile?.frozen_amount || 0)}</p>
