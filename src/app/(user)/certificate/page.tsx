@@ -93,9 +93,12 @@ export default function CertificatePage() {
                                     <div className="space-y-8 flex-1 flex flex-col justify-center max-w-2xl">
                                         <p className="text-sm text-white/50 italic font-serif tracking-widest uppercase">This prestigious honor is conferred upon</p>
                                         <div className="relative inline-block">
-                                            <h3 className="text-3xl md:text-5xl font-black text-white uppercase tracking-widest px-8 py-2">
-                                                {profile?.username || 'Valued Member'}
-                                            </h3>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[10px] font-black text-primary-light uppercase tracking-[0.4em] mb-2 opacity-50">Recipient Name</span>
+                                                <h3 className="text-3xl md:text-5xl font-black text-white uppercase tracking-widest px-8">
+                                                    {profile?.username || 'Valued Member'}
+                                                </h3>
+                                            </div>
                                             <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
                                         </div>
                                         <p className="text-xs md:text-sm text-white/70 leading-[1.8] font-medium px-4 md:px-12 backdrop-blur-[2px] py-4">
@@ -160,6 +163,10 @@ export default function CertificatePage() {
                                                 SIMPLE MONEY
                                             </h3>
                                             <div className="absolute -bottom-2 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-80" />
+                                        </div>
+                                        <div className="flex flex-col items-center mt-4">
+                                            <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1 opacity-60">Authorized Holder</span>
+                                            <span className="text-xl font-bold text-white uppercase tracking-widest">{profile?.username || 'REGISTERED AGENT'}</span>
                                         </div>
                                         <div className="grid grid-cols-2 gap-12 mt-8">
                                             <div className="text-left space-y-2">
