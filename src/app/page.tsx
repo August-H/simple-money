@@ -13,12 +13,10 @@ import {
     Globe,
     Cpu,
     Lock,
-    CheckCircle2,
-    DollarSign,
-    Sparkles,
-    Github,
-    Twitter,
-    BadgeCheck
+    BadgeCheck,
+    History,
+    MessageCircle,
+    Activity
 } from 'lucide-react';
 import gsap from 'gsap';
 import AnimatePage from '@/components/AnimatePage';
@@ -346,6 +344,73 @@ export default function LandingPage() {
                                     </Link>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Governance & Protocols Section */}
+                <section id="governance" className="px-6 py-32 relative overflow-hidden">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[200px] pointer-events-none" />
+                    
+                    <div className="max-w-7xl mx-auto relative z-10">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                            
+                            {/* System Protocols Card */}
+                            <div className="reveal-up lg:col-span-2 glass-panel p-10 md:p-16 border border-white/10 group hover:border-primary/30 transition-all duration-700 shadow-[0_20px_80px_rgba(0,0,0,0.4)]">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
+                                    <div>
+                                        <h2 className="text-xs font-black uppercase tracking-[0.5em] text-primary mb-4 opacity-70">Architecture</h2>
+                                        <h3 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic premium-text-gradient">System Protocols</h3>
+                                    </div>
+                                    <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-primary animate-pulse shadow-[0_0_50px_rgba(157,80,187,0.2)] border border-primary/20">
+                                        <Activity size={40} />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                                    {[
+                                        { label: 'Start Tasks', desc: 'Click to start task now', icon: Zap, color: 'text-warning' },
+                                        { label: 'Activity Records', desc: 'View recent settlements', icon: History, color: 'text-accent' },
+                                        { label: 'My Profile', desc: 'Manage account identity', icon: Users, color: 'text-primary' }
+                                    ].map((item, i) => (
+                                        <div key={i} className="space-y-5 group/item">
+                                            <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center group-hover/item:bg-white/10 group-hover/item:border-white/20 transition-all duration-300">
+                                                <item.icon size={24} className={`${item.color} group-hover/item:scale-110 transition-transform`} />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-base font-black uppercase tracking-[0.15em] mb-2">{item.label}</h4>
+                                                <p className="text-xs font-bold text-text-secondary opacity-40 group-hover/item:opacity-80 transition-opacity leading-relaxed">{item.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Support Stack */}
+                            <div className="grid grid-cols-1 gap-8">
+                                {/* Concierge Hub */}
+                                <div className="reveal-up glass-card-strong p-10 border-white/5 hover:border-accent/40 transition-all duration-700 group shadow-2xl">
+                                    <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-accent/20 transition-all">
+                                        <MessageCircle size={28} className="text-accent" />
+                                    </div>
+                                    <h4 className="text-2xl font-black uppercase tracking-tighter mb-4 italic">Concierge Hub</h4>
+                                    <p className="text-sm font-bold text-text-secondary opacity-50 group-hover:opacity-100 transition-opacity leading-relaxed">
+                                        Protocol support & network help
+                                    </p>
+                                </div>
+
+                                {/* Legal Governance */}
+                                <div className="reveal-up glass-card-strong p-10 border-white/5 hover:border-success/40 transition-all duration-700 group shadow-2xl">
+                                    <div className="w-14 h-14 rounded-2xl bg-success/10 border border-success/20 flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-success/20 transition-all">
+                                        <ShieldCheck size={28} className="text-success" />
+                                    </div>
+                                    <h4 className="text-2xl font-black uppercase tracking-tighter mb-4 italic">Legal Governance</h4>
+                                    <p className="text-sm font-bold text-text-secondary opacity-50 group-hover:opacity-100 transition-opacity leading-relaxed">
+                                        Compliance framework
+                                    </p>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </section>
