@@ -21,6 +21,7 @@ import {
     ArrowUpFromLine,
     Package,
     Bell,
+    Settings,
     AlertCircle,
 } from 'lucide-react';
 import AnimatePage from '@/components/AnimatePage';
@@ -36,6 +37,7 @@ const navItems = [
     { icon: Grid3X3, label: 'Task Items', href: '/dashboard-alpha/tasks' },
     { icon: Share2, label: 'Referrals', href: '/dashboard-alpha/referrals' },
     { icon: Receipt, label: 'Transactions', href: '/dashboard-alpha/transactions' },
+    { icon: Settings, label: 'Settings', href: '/dashboard-alpha/settings' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -178,10 +180,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </div>
                     <button
                         onClick={() => setShowSignOutConfirm(true)}
-                        className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl text-error/90 hover:text-error hover:bg-error/10 transition-all text-sm font-bold w-full group"
+                        className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl text-error/80 hover:text-white hover:bg-error transition-all duration-500 text-sm font-black w-full group relative overflow-hidden shadow-lg shadow-error/10 hover:shadow-error/30 uppercase tracking-widest border border-error/20"
                     >
-                        <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
-                        Log out
+                        <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                        <LogOut size={18} className="relative z-10 group-hover:-translate-x-1 transition-transform group-hover:scale-110" />
+                        <span className="relative z-10">Sign Out</span>
                     </button>
                 </div>
             </aside>
