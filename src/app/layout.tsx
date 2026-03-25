@@ -47,6 +47,70 @@ export default function RootLayout({
                 <Script id="tawk-to" strategy="afterInteractive">
                     {`
                     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+
+                    var hideNativeLauncher = function() {
+                        try {
+                            if (typeof Tawk_API.isChatMaximized === 'function' && Tawk_API.isChatMaximized()) {
+                                return;
+                            }
+
+                            if (typeof Tawk_API.hideWidget === 'function') {
+                                Tawk_API.hideWidget();
+                            }
+                        } catch (error) {}
+                    };
+
+                    var wrapMaximize = function() {
+                        if (!Tawk_API || typeof Tawk_API.maximize !== 'function' || Tawk_API.__maximizeWrapped) {
+                            return;
+                        }
+
+                        var originalMaximize = Tawk_API.maximize;
+                        Tawk_API.maximize = function() {
+                            if (typeof Tawk_API.showWidget === 'function') {
+                                Tawk_API.showWidget();
+                            }
+
+                            return originalMaximize.apply(Tawk_API, arguments);
+                        };
+                        Tawk_API.__maximizeWrapped = true;
+                    };
+
+                    var startLauncherGuard = function() {
+                        hideNativeLauncher();
+                        window.setTimeout(hideNativeLauncher, 500);
+                        window.setTimeout(hideNativeLauncher, 1500);
+                        window.setTimeout(hideNativeLauncher, 3000);
+
+                        if (!window.__tawkLauncherGuardInterval) {
+                            window.__tawkLauncherGuardInterval = window.setInterval(hideNativeLauncher, 2500);
+                        }
+
+                        if (!window.__tawkLauncherGuardBound) {
+                            window.addEventListener('resize', hideNativeLauncher);
+                            document.addEventListener('visibilitychange', function() {
+                                if (!document.hidden) {
+                                    hideNativeLauncher();
+                                }
+                            });
+                            window.__tawkLauncherGuardBound = true;
+                        }
+                    };
+
+                    Tawk_API.customStyle = {
+                        visibility: {
+                            desktop: {
+                                position: 'br',
+                                xOffset: 24,
+                                yOffset: 24
+                            },
+                            mobile: {
+                                position: 'br',
+                                xOffset: 16,
+                                yOffset: 96
+                            }
+                        }
+                    };
                     
                     // Device-specific privacy fix
                     var sessionId = localStorage.getItem('chat_session_id');
@@ -61,11 +125,20 @@ export default function RootLayout({
                     };
 
                     Tawk_API.onLoad = function(){
-                        Tawk_API.hideWidget();
+                        wrapMaximize();
+                        startLauncherGuard();
                     };
 
                     Tawk_API.onChatMinimized = function(){
-                        Tawk_API.hideWidget();
+                        window.setTimeout(hideNativeLauncher, 100);
+                    };
+
+                    Tawk_API.onChatEnded = function(){
+                        hideNativeLauncher();
+                    };
+
+                    Tawk_API.onOfflineSubmit = function(){
+                        hideNativeLauncher();
                     };
 
                     (function(){

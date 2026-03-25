@@ -1,16 +1,31 @@
 'use client';
 
-import { motion, useDragControls } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Headset } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function DraggableChat() {
     const [isVisible, setIsVisible] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
     
     useEffect(() => {
         // Delay visibility to ensure Tawk is loaded
         const timer = setTimeout(() => setIsVisible(true), 2000);
         return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(min-width: 768px)');
+        const syncViewport = () => setIsDesktop(mediaQuery.matches);
+
+        syncViewport();
+        if (typeof mediaQuery.addEventListener === 'function') {
+            mediaQuery.addEventListener('change', syncViewport);
+            return () => mediaQuery.removeEventListener('change', syncViewport);
+        }
+
+        mediaQuery.addListener(syncViewport);
+        return () => mediaQuery.removeListener(syncViewport);
     }, []);
 
     const toggleChat = () => {
@@ -29,15 +44,15 @@ export default function DraggableChat() {
 
     return (
         <motion.div
-            drag
+            drag={isDesktop}
             dragMomentum={false}
-            className="fixed bottom-24 right-6 z-[9999] cursor-grab active:cursor-grabbing md:bottom-10 md:right-10"
+            className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-[9999] cursor-pointer md:right-10 md:bottom-10 md:cursor-grab md:active:cursor-grabbing"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
         >
             <div className="relative group">
                 {/* Curved "We Are Here!" Text */}
-                <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none">
+                <div className="absolute -top-10 left-1/2 hidden -translate-x-1/2 whitespace-nowrap pointer-events-none md:block">
                     <div className="relative">
                         <svg viewBox="0 0 100 40" className="w-24 h-10 overflow-visible">
                             <path id="curve" d="M 0 30 Q 50 0 100 30" fill="transparent" />
@@ -53,7 +68,7 @@ export default function DraggableChat() {
                 {/* The Chat Bubble */}
                 <button
                     onClick={toggleChat}
-                    className="w-16 h-16 rounded-full bg-gradient-to-br from-primary via-primary-dark to-surface-light border-2 border-white/20 shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex items-center justify-center relative group-hover:scale-110 transition-transform duration-300 overflow-hidden"
+                    className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/20 bg-gradient-to-br from-primary via-primary-dark to-surface-light shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-110 md:h-16 md:w-16"
                 >
                     {/* Inner Glow */}
                     <div className="absolute inset-0 bg-primary/20 animate-pulse-slow" />
@@ -61,7 +76,7 @@ export default function DraggableChat() {
                     {/* Reflective Shine */}
                     <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-white/10 rotate-45 transform pointer-events-none" />
 
-                    <Headset size={30} className="text-white relative z-10 drop-shadow-md" />
+                    <Headset size={28} className="relative z-10 text-white drop-shadow-md md:h-[30px] md:w-[30px]" />
 
                     {/* Online Pulse Indicator */}
                     <div className="absolute bottom-2 left-2 w-2 h-2 bg-success rounded-full">
@@ -75,7 +90,7 @@ export default function DraggableChat() {
                 </button>
 
                 {/* Subtext Background Indicator (Optional, like the screenshot) */}
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-surface/80 backdrop-blur-md px-3 py-0.5 rounded-full border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute -bottom-2 left-1/2 hidden -translate-x-1/2 rounded-full border border-white/10 bg-surface/80 px-3 py-0.5 opacity-0 transition-opacity backdrop-blur-md group-hover:opacity-100 md:block">
                     <span className="text-[8px] font-black text-primary-light uppercase tracking-tighter">Support Online</span>
                 </div>
             </div>
